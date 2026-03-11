@@ -381,7 +381,11 @@ export default function LoginPage() {
                   <div>
                     <label className="block text-[12px] font-semibold text-gray-600 mb-1">새 비밀번호</label>
                     <input type="password" value={recoveryNewPw} onChange={(e) => setRecoveryNewPw(e.target.value)}
-                      className={smallInputCls} placeholder="4자 이상" required />
+                      className={`${smallInputCls} ${recoveryNewPw.length > 0 && !/^(?=.*[a-zA-Z])(?=.*\d).{8,}$/.test(recoveryNewPw) ? '!border-red-400 !ring-red-100' : ''}`}
+                      placeholder="영문+숫자 포함 8자 이상" required />
+                    {recoveryNewPw.length > 0 && !/^(?=.*[a-zA-Z])(?=.*\d).{8,}$/.test(recoveryNewPw) && (
+                      <p className="text-xs text-red-500 mt-1">영문과 숫자를 포함하여 8자 이상 입력해주세요.</p>
+                    )}
                   </div>
                   <button type="submit" disabled={recoveryLoading}
                     className="w-full py-2 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary-dark transition disabled:opacity-50">
