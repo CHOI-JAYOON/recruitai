@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate, Outlet } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -12,30 +12,35 @@ import InterviewPage from './pages/InterviewPage';
 import CareerDescPage from './pages/CareerDescPage';
 import OAuthCallbackPage from './pages/OAuthCallbackPage';
 
-function ProtectedRoute({ children }) {
+function ProtectedRoute() {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
-  return <Layout>{children}</Layout>;
+  return <Layout><Outlet /></Layout>;
 }
+
+const router = createBrowserRouter([
+  { path: '/login', element: <LoginPage /> },
+  { path: '/oauth/callback/:provider', element: <OAuthCallbackPage /> },
+  {
+    element: <ProtectedRoute />,
+    children: [
+      { path: '/', element: <HomePage /> },
+      { path: '/mypage', element: <MyPage /> },
+      { path: '/resume', element: <ResumePage /> },
+      { path: '/cover-letter', element: <CoverLetterPage /> },
+      { path: '/interview', element: <InterviewPage /> },
+      { path: '/career-description', element: <CareerDescPage /> },
+    ],
+  },
+  { path: '*', element: <Navigate to="/" replace /> },
+]);
 
 function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
         <ToastProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/oauth/callback/:provider" element={<OAuthCallbackPage />} />
-              <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
-              <Route path="/mypage" element={<ProtectedRoute><MyPage /></ProtectedRoute>} />
-              <Route path="/resume" element={<ProtectedRoute><ResumePage /></ProtectedRoute>} />
-              <Route path="/cover-letter" element={<ProtectedRoute><CoverLetterPage /></ProtectedRoute>} />
-              <Route path="/interview" element={<ProtectedRoute><InterviewPage /></ProtectedRoute>} />
-              <Route path="/career-description" element={<ProtectedRoute><CareerDescPage /></ProtectedRoute>} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </BrowserRouter>
+          <RouterProvider router={router} />
         </ToastProvider>
       </AuthProvider>
     </ThemeProvider>
