@@ -156,9 +156,27 @@ export default function HomePage() {
     if (!parseText.trim()) return;
     setParsing(true);
     try {
+      const currentType = editData?.type || 'portfolio';
+      const currentCategory = editData?.category;
       const res = await api.post('/portfolios/parse', { text: parseText });
-      setEditData(res.data);
-      setParseText('');
+      const parsed = Array.isArray(res.data) ? res.data[0] : res.data;
+      if (parsed) {
+        if (editData?.title) {
+          // 이미 데이터가 있으면 배열 필드는 누적, 나머지는 새 값으로 덮어쓰기
+          setEditData((prev) => ({
+            ...prev,
+            ...parsed,
+            type: currentType,
+            ...(currentCategory ? { category: currentCategory } : {}),
+            tech_stack: [...new Set([...(prev.tech_stack || []), ...(parsed.tech_stack || [])])],
+            achievements: [...(prev.achievements || []), ...(parsed.achievements || [])],
+            links: [...new Set([...(prev.links || []), ...(parsed.links || [])])],
+          }));
+          toast.success('파싱 결과가 추가되었습니다.');
+        } else {
+          setEditData({ ...parsed, type: currentType, ...(currentCategory ? { category: currentCategory } : {}) });
+        }
+      }
     } catch (err) {
       toast.error(err.response?.data?.detail || 'AI 파싱 실패. API 키를 확인해주세요.');
     } finally {
@@ -291,7 +309,7 @@ export default function HomePage() {
           </button>
         </div>
 
-        {mode === 'add' && !editData?.title && (
+        {mode === 'add' && (
           <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-5 mb-5">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#3182f6] to-[#6366f1] flex items-center justify-center">
@@ -417,6 +435,7 @@ export default function HomePage() {
             </button>
           </div>
         )}
+        <ApiKeyModal open={showModal} onClose={() => setShowModal(false)} onSave={() => setShowModal(false)} />
       </div>
     );
   }
