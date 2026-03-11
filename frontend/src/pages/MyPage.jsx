@@ -4,9 +4,12 @@ import { useToast } from '../contexts/ToastContext';
 import api from '../api/client';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ConfirmModal from '../components/ConfirmModal';
+import ApiKeyModal, { useApiKeyCheck } from '../components/ApiKeyModal';
+import ResumeUploadModal from '../components/ResumeUploadModal';
 
 const schoolTypes = ['고등학교', '대학교', '대학원'];
 const gpaScales = ['4.0', '4.3', '4.5'];
+const degreeTypes = ['전문학사', '학사', '석사', '박사', '기타'];
 const statusOptions = ['지원예정', '지원완료', '서류합격', '면접예정', '면접완료', '최종합격', '불합격'];
 const statusColors = {
   '지원예정': 'bg-gray-100 text-gray-600',
@@ -73,6 +76,8 @@ export default function MyPage() {
   const [appForm, setAppForm] = useState(null);
   const [appSaving, setAppSaving] = useState(false);
   const [appDeleteTarget, setAppDeleteTarget] = useState(null);
+  const { showModal: showApiKeyModal, setShowModal: setShowApiKeyModal, checkApiKey } = useApiKeyCheck();
+  const [showResumeUpload, setShowResumeUpload] = useState(false);
 
   // Cover letter folder state
   const [openCompany, setOpenCompany] = useState(null);
@@ -355,6 +360,26 @@ export default function MyPage() {
   const cancelEdit = () => {
     setEditing(false);
     loadProfile();
+  };
+
+  const handleResumeResult = (data) => {
+    if (!data || !profile) return;
+    const updated = { ...profile };
+    if (!updated.name && data.name) updated.name = data.name;
+    if (!updated.email && data.email) updated.email = data.email;
+    if (!updated.phone && data.phone) updated.phone = data.phone;
+    if (!updated.github && data.github) updated.github = data.github;
+    if (!updated.linkedin && data.linkedin) updated.linkedin = data.linkedin;
+    if (!updated.blog && data.blog) updated.blog = data.blog;
+    if (!updated.summary && data.summary) updated.summary = data.summary;
+    if ((!updated.education || updated.education.length === 0) && data.education?.length > 0) updated.education = data.education;
+    if ((!updated.work_experience || updated.work_experience.length === 0) && data.work_experience?.length > 0) updated.work_experience = data.work_experience;
+    if ((!updated.certificates || updated.certificates.length === 0) && data.certificates?.length > 0) updated.certificates = data.certificates;
+    if ((!updated.awards || updated.awards.length === 0) && data.awards?.length > 0) updated.awards = data.awards;
+    if ((!updated.trainings || updated.trainings.length === 0) && data.trainings?.length > 0) updated.trainings = data.trainings;
+    setProfile(updated);
+    setEditing(true);
+    toast.success('이력서에서 프로필 정보가 채워졌습니다. 확인 후 저장해주세요.');
   };
 
   const saveApiKey = () => {
@@ -842,7 +867,10 @@ export default function MyPage() {
             </div>
             <div>
               <label className={labelClass}>학위</label>
-              <input value={edu.degree} onChange={(e) => updateListItem('education', idx, 'degree', e.target.value)} className={inputClass} placeholder="학사, 석사 등" />
+              <select value={edu.degree} onChange={(e) => updateListItem('education', idx, 'degree', e.target.value)} className={inputClass}>
+                <option value="">선택</option>
+                {degreeTypes.map((d) => <option key={d}>{d}</option>)}
+              </select>
             </div>
             <div>
               <label className={labelClass}>입학일</label>
@@ -1103,6 +1131,22 @@ export default function MyPage() {
                 <span className="w-1.5 h-5 bg-primary rounded-full" />교육 이수
               </h3>
               {EditTraining()}
+            </div>
+            {/* 저장/취소 버튼 */}
+            <div className="flex justify-end gap-2 pt-4 border-t border-gray-100">
+              <button
+                onClick={cancelEdit}
+                className="px-5 py-2.5 text-sm font-semibold text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition"
+              >
+                취소
+              </button>
+              <button
+                onClick={saveProfile}
+                disabled={saving}
+                className="px-5 py-2.5 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary-dark transition disabled:opacity-50"
+              >
+                {saving ? '저장 중...' : '저장'}
+              </button>
             </div>
           </div>
         );
@@ -1616,32 +1660,21 @@ export default function MyPage() {
     <div className="animate-fade-in">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-gray-900">마이페이지</h1>
-        {activeTab === 'profile' && (
+        {activeTab === 'profile' && !editing && (
           <div className="flex gap-2">
-            {editing ? (
-              <>
-                <button
-                  onClick={cancelEdit}
-                  className="px-4 py-2 text-sm font-semibold text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition"
-                >
-                  취소
-                </button>
-                <button
-                  onClick={saveProfile}
-                  disabled={saving}
-                  className="px-4 py-2 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary-dark transition disabled:opacity-50"
-                >
-                  {saving ? '저장 중...' : '저장'}
-                </button>
-              </>
-            ) : (
-              <button
-                onClick={() => setEditing(true)}
-                className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition"
-              >
-                수정
-              </button>
-            )}
+            <button
+              onClick={() => { if (checkApiKey()) setShowResumeUpload(true); }}
+              className="px-4 py-2 text-sm font-semibold text-indigo-600 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition flex items-center gap-1.5"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
+              이력서로 채우기
+            </button>
+            <button
+              onClick={() => setEditing(true)}
+              className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition"
+            >
+              수정
+            </button>
           </div>
         )}
       </div>
@@ -1672,6 +1705,8 @@ export default function MyPage() {
 
       <ConfirmModal open={!!appDeleteTarget} title="지원 기록 삭제" message="이 지원 기록을 삭제하시겠습니까?"
         onConfirm={deleteApp} onCancel={() => setAppDeleteTarget(null)} />
+      <ApiKeyModal open={showApiKeyModal} onClose={() => setShowApiKeyModal(false)} onSave={() => setShowApiKeyModal(false)} />
+      <ResumeUploadModal open={showResumeUpload} onClose={() => setShowResumeUpload(false)} onResult={handleResumeResult} />
     </div>
   );
 }

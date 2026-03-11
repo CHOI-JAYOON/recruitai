@@ -25,7 +25,7 @@ export default function ResumePage() {
   const [step, setStep] = useState(1);
 
   useEffect(() => {
-    api.get('/portfolios').then((res) => {
+    api.get(`/portfolios?username=${user.username}`).then((res) => {
       setPortfolios(res.data);
       setLoading(false);
     }).catch(() => setLoading(false));

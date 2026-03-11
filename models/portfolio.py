@@ -5,6 +5,7 @@ import uuid
 
 class Portfolio(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    username: str = Field(default="", description="소유자 username")
     title: str = Field(description="프로젝트 제목")
     company: str = Field(default="", description="회사명 (경력 타입 전용)")
     type: str = Field(default="portfolio", description="portfolio 또는 career")

@@ -11,23 +11,30 @@ class StorageService:
         if not self.path.exists():
             self.path.write_text("[]", encoding="utf-8")
 
-    def load_all(self) -> list[Portfolio]:
+    def load_all(self, username: str = "") -> list[Portfolio]:
+        raw = json.loads(self.path.read_text(encoding="utf-8"))
+        portfolios = [Portfolio(**item) for item in raw]
+        if username:
+            return [p for p in portfolios if p.username == username]
+        return portfolios
+
+    def _load_all_raw(self) -> list[Portfolio]:
         raw = json.loads(self.path.read_text(encoding="utf-8"))
         return [Portfolio(**item) for item in raw]
 
     def get_by_id(self, portfolio_id: str) -> Portfolio | None:
-        for p in self.load_all():
+        for p in self._load_all_raw():
             if p.id == portfolio_id:
                 return p
         return None
 
     def get_by_ids(self, ids: list[str]) -> list[Portfolio]:
-        all_portfolios = self.load_all()
+        all_portfolios = self._load_all_raw()
         id_set = set(ids)
         return [p for p in all_portfolios if p.id in id_set]
 
     def save(self, portfolio: Portfolio) -> None:
-        portfolios = self.load_all()
+        portfolios = self._load_all_raw()
         existing_ids = {p.id for p in portfolios}
         if portfolio.id in existing_ids:
             portfolios = [
@@ -38,11 +45,11 @@ class StorageService:
         self._write(portfolios)
 
     def delete(self, portfolio_id: str) -> None:
-        portfolios = [p for p in self.load_all() if p.id != portfolio_id]
+        portfolios = [p for p in self._load_all_raw() if p.id != portfolio_id]
         self._write(portfolios)
 
     def reorder(self, ordered_ids: list[str]) -> None:
-        portfolios = self.load_all()
+        portfolios = self._load_all_raw()
         id_map = {p.id: p for p in portfolios}
         reordered = [id_map[pid] for pid in ordered_ids if pid in id_map]
         # Append any portfolios not in ordered_ids at the end

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Header
+from fastapi import APIRouter, HTTPException, Header, Query
 from pydantic import BaseModel
 from models.portfolio import Portfolio
 from services.storage import StorageService
@@ -19,8 +19,8 @@ class ReorderRequest(BaseModel):
 
 
 @router.get("")
-def list_portfolios():
-    return storage.load_all()
+def list_portfolios(username: str = Query(default="")):
+    return storage.load_all(username=username)
 
 
 @router.patch("/reorder")

@@ -25,7 +25,7 @@ export default function CareerDescPage() {
   const [step, setStep] = useState(1);
 
   useEffect(() => {
-    api.get('/portfolios').then((res) => {
+    api.get(`/portfolios?username=${user.username}`).then((res) => {
       setPortfolios(res.data.filter((p) => p.type === 'career'));
       setLoading(false);
     }).catch(() => setLoading(false));

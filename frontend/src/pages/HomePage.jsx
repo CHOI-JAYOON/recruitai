@@ -7,6 +7,7 @@ import ConfirmModal from '../components/ConfirmModal';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { SkeletonDashboard } from '../components/Skeleton';
 import ApiKeyModal, { useApiKeyCheck } from '../components/ApiKeyModal';
+import ResumeUploadModal from '../components/ResumeUploadModal';
 
 const emptyPortfolio = {
   title: '', company: '', type: 'portfolio', category: '개인 프로젝트', period: '', tech_stack: [],
@@ -84,6 +85,8 @@ export default function HomePage() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [techInput, setTechInput] = useState('');
   const [achieveInput, setAchieveInput] = useState('');
+  const [showResumeUpload, setShowResumeUpload] = useState(false);
+  const [expandedId, setExpandedId] = useState(null);
 
   // Drag & Drop state
   const dragItem = useRef(null);
@@ -97,7 +100,7 @@ export default function HomePage() {
   const loadData = async () => {
     try {
       const [portfolioRes, resumeRes, clRes, cdRes, profileRes, interviewRes] = await Promise.all([
-        api.get('/portfolios'),
+        api.get(`/portfolios?username=${user.username}`),
         api.get(`/resume/history?username=${user.username}`).catch(() => ({ data: [] })),
         api.get(`/cover-letter/history?username=${user.username}`).catch(() => ({ data: [] })),
         api.get(`/career-description/history?username=${user.username}`).catch(() => ({ data: [] })),
@@ -191,10 +194,11 @@ export default function HomePage() {
     }
     setSaving(true);
     try {
+      const dataWithUser = { ...editData, username: user.username };
       if (mode === 'edit' && editData.id) {
-        await api.put(`/portfolios/${editData.id}`, editData);
+        await api.put(`/portfolios/${editData.id}`, dataWithUser);
       } else {
-        await api.post('/portfolios', editData);
+        await api.post('/portfolios', dataWithUser);
       }
       await loadData();
       setMode('list');
@@ -218,6 +222,41 @@ export default function HomePage() {
     } finally {
       setDeleteTarget(null);
     }
+  };
+
+  const handleResumeResult = async (data) => {
+    if (!data) return;
+    let count = 0;
+    // 포트폴리오/경력 항목 저장
+    if (data.portfolios?.length > 0) {
+      for (const p of data.portfolios) {
+        try {
+          await api.post('/portfolios', { ...p, username: user.username });
+          count++;
+        } catch { /* skip */ }
+      }
+    }
+    // 프로필 정보 업데이트 (빈 필드만)
+    try {
+      const profileRes = await api.get(`/profile/${user.username}`);
+      const existing = profileRes.data || {};
+      const updated = { ...existing };
+      if (!updated.name && data.name) updated.name = data.name;
+      if (!updated.email && data.email) updated.email = data.email;
+      if (!updated.phone && data.phone) updated.phone = data.phone;
+      if (!updated.github && data.github) updated.github = data.github;
+      if (!updated.linkedin && data.linkedin) updated.linkedin = data.linkedin;
+      if (!updated.blog && data.blog) updated.blog = data.blog;
+      if (!updated.summary && data.summary) updated.summary = data.summary;
+      if ((!updated.education || updated.education.length === 0) && data.education?.length > 0) updated.education = data.education;
+      if ((!updated.work_experience || updated.work_experience.length === 0) && data.work_experience?.length > 0) updated.work_experience = data.work_experience;
+      if ((!updated.certificates || updated.certificates.length === 0) && data.certificates?.length > 0) updated.certificates = data.certificates;
+      if ((!updated.awards || updated.awards.length === 0) && data.awards?.length > 0) updated.awards = data.awards;
+      if ((!updated.trainings || updated.trainings.length === 0) && data.trainings?.length > 0) updated.trainings = data.trainings;
+      await api.put(`/profile/${user.username}`, updated);
+    } catch { /* skip */ }
+    await loadData();
+    toast.success(`이력서에서 ${count}개 포트폴리오/경력 항목이 추가되었습니다.`);
   };
 
   const startAdd = () => { setEditData({ ...emptyPortfolio }); setMode('add'); setTechInput(''); setAchieveInput(''); };
@@ -371,9 +410,23 @@ export default function HomePage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">기간</label>
-                <input value={editData.period || ''} onChange={(e) => setEditData({ ...editData, period: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition"
-                  placeholder="2024.01 - 2024.06" />
+                <div className="flex items-center gap-2">
+                  <input type="month" value={(editData.period || '').split(' - ')[0]?.replace('.', '-') || ''}
+                    onChange={(e) => {
+                      const start = e.target.value.replace('-', '.');
+                      const end = (editData.period || '').split(' - ')[1] || '';
+                      setEditData({ ...editData, period: end ? `${start} - ${end}` : start });
+                    }}
+                    className="flex-1 px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition" />
+                  <span className="text-gray-400 text-sm">~</span>
+                  <input type="month" value={(editData.period || '').split(' - ')[1]?.replace('.', '-') || ''}
+                    onChange={(e) => {
+                      const start = (editData.period || '').split(' - ')[0] || '';
+                      const end = e.target.value.replace('-', '.');
+                      setEditData({ ...editData, period: start ? `${start} - ${end}` : end });
+                    }}
+                    className="flex-1 px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition" />
+                </div>
               </div>
               <div>
                 <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">
@@ -527,10 +580,17 @@ export default function HomePage() {
       {/* Portfolio & Career section */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-bold text-gray-900">내 포트폴리오 & 경력</h2>
-        <button onClick={startAdd}
-          className="px-4 py-2 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary-dark transition">
-          + 추가
-        </button>
+        <div className="flex gap-2">
+          <button onClick={() => { if (checkApiKey()) setShowResumeUpload(true); }}
+            className="px-4 py-2 text-sm font-semibold text-indigo-600 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition flex items-center gap-1.5">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
+            이력서 업로드
+          </button>
+          <button onClick={startAdd}
+            className="px-4 py-2 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary-dark transition">
+            + 추가
+          </button>
+        </div>
       </div>
 
       {portfolios.length === 0 ? (
@@ -585,21 +645,48 @@ export default function HomePage() {
                             <div key={p.id}
                               draggable onDragStart={() => handleDragStart(idx)} onDragOver={(e) => handleDragOver(e, idx)} onDrop={handleDrop} onDragEnd={handleDragEnd}
                               className={`px-5 py-4 cursor-grab active:cursor-grabbing hover:bg-gray-50 transition-all ${dragIdx === idx ? 'opacity-40' : ''}`}>
-                              <div className="flex items-center gap-2 mb-1.5">
-                                <span className="text-xs font-semibold text-[#3182f6] bg-[#3182f6]/10 px-2 py-0.5 rounded-full">{p.category}</span>
-                                {p.period && <span className="text-xs text-gray-400">{p.period}</span>}
+                              <div className="cursor-pointer" onClick={() => setExpandedId(expandedId === p.id ? null : p.id)}>
+                                <div className="flex items-center gap-2 mb-1.5">
+                                  <span className="text-xs font-semibold text-[#3182f6] bg-[#3182f6]/10 px-2 py-0.5 rounded-full">{p.category}</span>
+                                  {p.period && <span className="text-xs text-gray-400">{p.period}</span>}
+                                  <svg className={`w-4 h-4 text-gray-400 ml-auto transition-transform ${expandedId === p.id ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9" /></svg>
+                                </div>
+                                <p className="text-sm font-bold text-gray-900 mb-0.5">{p.title}</p>
+                                {p.role && <p className="text-xs text-gray-500 mb-1">{p.role}{p.team_size ? ` · ${p.team_size}` : ''}</p>}
+                                {p.tech_stack?.length > 0 && (
+                                  <div className="flex flex-wrap gap-1 mb-1.5">
+                                    {p.tech_stack.slice(0, 6).map((t, i) => (
+                                      <span key={i} className="text-[11px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">{t}</span>
+                                    ))}
+                                    {p.tech_stack.length > 6 && <span className="text-[11px] text-gray-400">+{p.tech_stack.length - 6}</span>}
+                                  </div>
+                                )}
+                                {expandedId !== p.id && p.description && <p className="text-[12px] text-gray-500 leading-relaxed line-clamp-2">{p.description}</p>}
                               </div>
-                              <p className="text-sm font-bold text-gray-900 mb-0.5">{p.title}</p>
-                              {p.role && <p className="text-xs text-gray-500 mb-1">{p.role}{p.team_size ? ` · ${p.team_size}` : ''}</p>}
-                              {p.tech_stack?.length > 0 && (
-                                <div className="flex flex-wrap gap-1 mb-1.5">
-                                  {p.tech_stack.slice(0, 6).map((t, i) => (
-                                    <span key={i} className="text-[11px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">{t}</span>
-                                  ))}
-                                  {p.tech_stack.length > 6 && <span className="text-[11px] text-gray-400">+{p.tech_stack.length - 6}</span>}
+                              {expandedId === p.id && (
+                                <div className="mt-3 pt-3 border-t border-gray-100 space-y-2">
+                                  {p.description && <p className="text-[13px] text-gray-600 leading-relaxed">{p.description}</p>}
+                                  {p.achievements?.length > 0 && (
+                                    <div>
+                                      <p className="text-xs font-semibold text-gray-700 mb-1">주요 성과</p>
+                                      <ul className="space-y-1">
+                                        {p.achievements.map((a, i) => (
+                                          <li key={i} className="text-[12px] text-gray-600 flex items-start gap-1.5">
+                                            <span className="text-[#3182f6] mt-0.5">•</span>{a}
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+                                  {p.links?.length > 0 && (
+                                    <div className="flex flex-wrap gap-2">
+                                      {p.links.map((l, i) => (
+                                        <a key={i} href={l} target="_blank" rel="noopener noreferrer" className="text-[11px] text-primary hover:underline">{l}</a>
+                                      ))}
+                                    </div>
+                                  )}
                                 </div>
                               )}
-                              {p.description && <p className="text-[12px] text-gray-500 leading-relaxed line-clamp-2">{p.description}</p>}
                               <div className="flex items-center gap-1 mt-2">
                                 <button onClick={() => startEdit(p)} className="px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition">수정</button>
                                 <button onClick={() => setDeleteTarget(p.id)} className="px-3 py-1 text-xs font-medium text-red-500 hover:bg-red-50 rounded-lg transition">삭제</button>
@@ -631,30 +718,59 @@ export default function HomePage() {
                   return (
                     <div key={p.id}
                       draggable onDragStart={() => handleDragStart(idx)} onDragOver={(e) => handleDragOver(e, idx)} onDrop={handleDrop} onDragEnd={handleDragEnd}
-                      className={`bg-white rounded-2xl border border-gray-200 overflow-hidden card-hover flex flex-col h-[280px] cursor-grab active:cursor-grabbing transition-all ${dragIdx === idx ? 'opacity-40 scale-95' : ''}`}>
+                      className={`bg-white rounded-2xl border border-gray-200 overflow-hidden card-hover flex flex-col cursor-grab active:cursor-grabbing transition-all ${dragIdx === idx ? 'opacity-40 scale-95' : ''} ${expandedId === p.id ? '' : 'h-[280px]'}`}>
                       <div className="p-4 flex flex-col flex-1 min-h-0">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-xs font-semibold text-[#7b61ff] bg-[#7b61ff]/10 px-2.5 py-0.5 rounded-full">{p.category}</span>
-                          {p.period && <span className="text-xs text-gray-400">{p.period}</span>}
-                          {portfolioRefCount[p.id] > 0 && (
-                            <span className="text-[10px] font-semibold text-[#7b61ff] bg-[#7b61ff]/10 px-2 py-0.5 rounded-full ml-auto">
-                              자소서 {portfolioRefCount[p.id]}회 참조
-                            </span>
+                        <div className="cursor-pointer" onClick={() => setExpandedId(expandedId === p.id ? null : p.id)}>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-xs font-semibold text-[#7b61ff] bg-[#7b61ff]/10 px-2.5 py-0.5 rounded-full">{p.category}</span>
+                            {p.period && <span className="text-xs text-gray-400">{p.period}</span>}
+                            {portfolioRefCount[p.id] > 0 && (
+                              <span className="text-[10px] font-semibold text-[#7b61ff] bg-[#7b61ff]/10 px-2 py-0.5 rounded-full ml-auto">
+                                자소서 {portfolioRefCount[p.id]}회 참조
+                              </span>
+                            )}
+                            <svg className={`w-4 h-4 text-gray-400 ${!portfolioRefCount[p.id] ? 'ml-auto' : ''} transition-transform ${expandedId === p.id ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9" /></svg>
+                          </div>
+                          <h3 className="font-bold text-gray-900 mb-2 line-clamp-1">{p.title}</h3>
+                          {p.tech_stack?.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mb-2">
+                              {p.tech_stack.slice(0, 5).map((t, i) => (
+                                <span key={i} className="text-[11px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">{t}</span>
+                              ))}
+                              {p.tech_stack.length > 5 && <span className="text-[11px] text-gray-400">+{p.tech_stack.length - 5}</span>}
+                            </div>
                           )}
                         </div>
-                        <h3 className="font-bold text-gray-900 mb-2 line-clamp-1">{p.title}</h3>
-                        {p.tech_stack?.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mb-2">
-                            {p.tech_stack.slice(0, 5).map((t, i) => (
-                              <span key={i} className="text-[11px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">{t}</span>
-                            ))}
-                            {p.tech_stack.length > 5 && <span className="text-[11px] text-gray-400">+{p.tech_stack.length - 5}</span>}
+                        {expandedId !== p.id ? (
+                          <div className="flex-1 min-h-0 overflow-hidden">
+                            {p.role && <p className="text-[13px] text-gray-600 mb-1"><span className="font-semibold text-gray-700">역할:</span> {p.role}</p>}
+                            {p.description && <p className="text-[12px] text-gray-500 leading-relaxed line-clamp-3">{p.description}</p>}
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            {p.role && <p className="text-[13px] text-gray-600"><span className="font-semibold text-gray-700">역할:</span> {p.role}{p.team_size ? ` · ${p.team_size}` : ''}</p>}
+                            {p.description && <p className="text-[13px] text-gray-600 leading-relaxed">{p.description}</p>}
+                            {p.achievements?.length > 0 && (
+                              <div>
+                                <p className="text-xs font-semibold text-gray-700 mb-1">주요 성과</p>
+                                <ul className="space-y-1">
+                                  {p.achievements.map((a, i) => (
+                                    <li key={i} className="text-[12px] text-gray-600 flex items-start gap-1.5">
+                                      <span className="text-[#7b61ff] mt-0.5">•</span>{a}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            {p.links?.length > 0 && (
+                              <div className="flex flex-wrap gap-2">
+                                {p.links.map((l, i) => (
+                                  <a key={i} href={l} target="_blank" rel="noopener noreferrer" className="text-[11px] text-primary hover:underline">{l}</a>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         )}
-                        <div className="flex-1 min-h-0 overflow-hidden">
-                          {p.role && <p className="text-[13px] text-gray-600 mb-1"><span className="font-semibold text-gray-700">역할:</span> {p.role}</p>}
-                          {p.description && <p className="text-[12px] text-gray-500 leading-relaxed line-clamp-3">{p.description}</p>}
-                        </div>
                         <div className="flex items-center gap-1 pt-3 mt-auto border-t border-gray-100">
                           <button onClick={() => startEdit(p)} className="px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition">수정</button>
                           <button onClick={() => setDeleteTarget(p.id)} className="px-3 py-1 text-xs font-medium text-red-500 hover:bg-red-50 rounded-lg transition">삭제</button>
@@ -672,6 +788,7 @@ export default function HomePage() {
       <ConfirmModal open={!!deleteTarget} title="포트폴리오 삭제" message="이 포트폴리오를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
         onConfirm={handleDelete} onCancel={() => setDeleteTarget(null)} />
       <ApiKeyModal open={showModal} onClose={() => setShowModal(false)} onSave={() => setShowModal(false)} />
+      <ResumeUploadModal open={showResumeUpload} onClose={() => setShowResumeUpload(false)} onResult={handleResumeResult} />
     </div>
   );
 }

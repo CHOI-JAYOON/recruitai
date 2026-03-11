@@ -121,6 +121,18 @@ export default function LoginPage() {
         email: recoveryEmail, new_password: recoveryNewPw,
       });
       setRecoveryResult('비밀번호가 재설정되었습니다. 로그인해주세요.');
+      // 로그인 입력칸 초기화 + 복구 모달 닫기 + 화면 상단 이동
+      setTimeout(() => {
+        setUsername(recoveryUsername);
+        setPassword('');
+        setRecoveryMode(null);
+        setRecoveryResult('');
+        setRecoveryName('');
+        setRecoveryEmail('');
+        setRecoveryUsername('');
+        setRecoveryNewPw('');
+        window.scrollTo(0, 0);
+      }, 1500);
     } catch (err) {
       setRecoveryResult(err.response?.data?.detail || '비밀번호 재설정 실패');
     } finally {

@@ -208,8 +208,9 @@ export default function CoverLetterPage() {
               경력기술서: {primaryCareerDesc.target_role}
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-50 text-gray-400 text-xs font-semibold rounded-full border border-gray-200">
-              경력기술서 미설정
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 text-amber-600 text-xs font-semibold rounded-full border border-amber-200">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              대표 경력기술서 미설정
             </span>
           )}
         </div>
