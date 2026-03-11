@@ -50,7 +50,7 @@ export default function ResumeUploadModal({ open, onClose, onResult }) {
       formData.append('file', file);
       const res = await api.post(`/profile/${user.username}/parse-resume`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
-        timeout: 60000,
+        timeout: 180000,
       });
       onResult?.(res.data);
       onClose?.();

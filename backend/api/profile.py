@@ -51,6 +51,11 @@ async def parse_resume(
     if not text.strip():
         raise HTTPException(status_code=400, detail="파일에서 텍스트를 추출할 수 없습니다.")
 
+    # 텍스트가 너무 길면 앞부분만 사용 (GPT 토큰 한도 및 응답 시간 고려)
+    max_chars = 20000
+    if len(text) > max_chars:
+        text = text[:max_chars] + "\n\n[이하 생략 - 텍스트가 너무 길어 앞부분만 분석합니다]"
+
     client = get_openai_client(x_api_key)
     agent = ResumeParserAgent(client)
     result = agent.parse(text)
