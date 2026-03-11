@@ -134,11 +134,18 @@ export default function MyPage() {
   }, [resumes.length, careerDescs.length]);
 
   const loadProfile = async () => {
+    const defaultProfile = { name: '', email: '', phone: '', github: '', linkedin: '', blog: '', summary: '', resume_text: '', education: [], work_experience: [], certificates: [], awards: [], trainings: [] };
     try {
       const res = await api.get(`/profile/${user.username}`);
-      setProfile(res.data);
+      const data = res.data || defaultProfile;
+      // 회원가입 시 입력한 이름/이메일 자동 반영
+      if (!data.name && user?.display_name) data.name = user.display_name;
+      if (!data.email && user?.email) data.email = user.email;
+      setProfile(data);
     } catch {
-      setProfile({ name: '', email: '', phone: '', github: '', linkedin: '', blog: '', summary: '', resume_text: '', education: [], work_experience: [], certificates: [], awards: [], trainings: [] });
+      defaultProfile.name = user?.display_name || '';
+      defaultProfile.email = user?.email || '';
+      setProfile(defaultProfile);
     } finally {
       setLoading(false);
     }
@@ -1048,102 +1055,102 @@ export default function MyPage() {
   };
 
   const renderContent = () => {
-    if (activeTab === 'applications') return <ViewApplications />;
+    if (activeTab === 'applications') return ViewApplications();
 
     if (activeTab === 'profile') {
       if (editing) {
         return (
           <div className="flex flex-col gap-8">
-            <ProfileCompletionBar />
+            {ProfileCompletionBar()}
             {/* 기본 정보 */}
             <div>
               <h3 className="text-[15px] font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <span className="w-1.5 h-5 bg-primary rounded-full" />기본 정보
               </h3>
-              <EditBasic />
+              {EditBasic()}
             </div>
             {/* 학력 */}
             <div>
               <h3 className="text-[15px] font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <span className="w-1.5 h-5 bg-primary rounded-full" />학력
               </h3>
-              <EditEducation />
+              {EditEducation()}
             </div>
             {/* 경력 */}
             <div>
               <h3 className="text-[15px] font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <span className="w-1.5 h-5 bg-primary rounded-full" />경력
               </h3>
-              <EditWork />
+              {EditWork()}
             </div>
             {/* 자격증 */}
             <div>
               <h3 className="text-[15px] font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <span className="w-1.5 h-5 bg-primary rounded-full" />자격증
               </h3>
-              <EditCert />
+              {EditCert()}
             </div>
             {/* 수상 */}
             <div>
               <h3 className="text-[15px] font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <span className="w-1.5 h-5 bg-primary rounded-full" />수상
               </h3>
-              <EditAward />
+              {EditAward()}
             </div>
             {/* 교육 이수 */}
             <div>
               <h3 className="text-[15px] font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <span className="w-1.5 h-5 bg-primary rounded-full" />교육 이수
               </h3>
-              <EditTraining />
+              {EditTraining()}
             </div>
           </div>
         );
       }
       return (
         <div className="flex flex-col gap-8">
-          <ProfileCompletionBar />
+          {ProfileCompletionBar()}
           {/* 기본 정보 */}
           <div>
             <h3 className="text-[15px] font-bold text-gray-900 mb-4 flex items-center gap-2">
               <span className="w-1.5 h-5 bg-primary rounded-full" />기본 정보
             </h3>
-            <ViewBasic />
+            {ViewBasic()}
           </div>
           {/* 학력 */}
           <div>
             <h3 className="text-[15px] font-bold text-gray-900 mb-4 flex items-center gap-2">
               <span className="w-1.5 h-5 bg-primary rounded-full" />학력
             </h3>
-            <ViewEducation />
+            {ViewEducation()}
           </div>
           {/* 경력 */}
           <div>
             <h3 className="text-[15px] font-bold text-gray-900 mb-4 flex items-center gap-2">
               <span className="w-1.5 h-5 bg-primary rounded-full" />경력
             </h3>
-            <ViewWork />
+            {ViewWork()}
           </div>
           {/* 자격증 */}
           <div>
             <h3 className="text-[15px] font-bold text-gray-900 mb-4 flex items-center gap-2">
               <span className="w-1.5 h-5 bg-primary rounded-full" />자격증
             </h3>
-            <ViewCert />
+            {ViewCert()}
           </div>
           {/* 수상 */}
           <div>
             <h3 className="text-[15px] font-bold text-gray-900 mb-4 flex items-center gap-2">
               <span className="w-1.5 h-5 bg-primary rounded-full" />수상
             </h3>
-            <ViewAward />
+            {ViewAward()}
           </div>
           {/* 교육 이수 */}
           <div>
             <h3 className="text-[15px] font-bold text-gray-900 mb-4 flex items-center gap-2">
               <span className="w-1.5 h-5 bg-primary rounded-full" />교육 이수
             </h3>
-            <ViewTraining />
+            {ViewTraining()}
           </div>
         </div>
       );

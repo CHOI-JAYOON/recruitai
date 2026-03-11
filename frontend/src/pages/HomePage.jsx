@@ -162,10 +162,10 @@ export default function HomePage() {
       const parsed = Array.isArray(res.data) ? res.data[0] : res.data;
       if (parsed) {
         if (editData?.title) {
-          // 이미 데이터가 있으면 배열 필드는 누적, 나머지는 새 값으로 덮어쓰기
+          // 이미 데이터가 있으면 핵심 필드는 유지, 배열 필드는 누적
           setEditData((prev) => ({
             ...prev,
-            ...parsed,
+            description: parsed.description || prev.description,
             type: currentType,
             ...(currentCategory ? { category: currentCategory } : {}),
             tech_stack: [...new Set([...(prev.tech_stack || []), ...(parsed.tech_stack || [])])],
@@ -417,9 +417,20 @@ export default function HomePage() {
               <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">성과</label>
               <ul className="space-y-1.5 mb-2">
                 {(editData.achievements || []).map((a, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                    <span className="mt-0.5 text-primary">•</span><span className="flex-1">{a}</span>
-                    <button onClick={() => removeAchieve(i)} className="text-gray-400 hover:text-red-500 text-xs shrink-0">삭제</button>
+                  <li key={i} className="flex items-start gap-2 text-sm text-gray-700 group">
+                    <span className="mt-2 text-primary">•</span>
+                    <textarea
+                      value={a}
+                      onChange={(e) => {
+                        const updated = [...editData.achievements];
+                        updated[i] = e.target.value;
+                        setEditData({ ...editData, achievements: updated });
+                      }}
+                      rows={1}
+                      onInput={(e) => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; }}
+                      className="flex-1 px-3 py-1.5 bg-transparent border border-transparent rounded-lg text-sm hover:border-gray-200 focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none transition"
+                    />
+                    <button onClick={() => removeAchieve(i)} className="mt-1.5 text-gray-300 hover:text-red-500 text-xs shrink-0 opacity-0 group-hover:opacity-100 transition">삭제</button>
                   </li>
                 ))}
               </ul>
