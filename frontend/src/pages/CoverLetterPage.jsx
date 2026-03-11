@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import api from '../api/client';
 import LoadingSpinner from '../components/LoadingSpinner';
+import ApiKeyModal, { useApiKeyCheck } from '../components/ApiKeyModal';
 
 // Word-level diff: highlights new/changed words in the refined answer
 function diffHighlight(oldText, newText) {
@@ -36,6 +37,7 @@ function diffHighlight(oldText, newText) {
 export default function CoverLetterPage() {
   const { user } = useAuth();
   const toast = useToast();
+  const { showModal, setShowModal, checkApiKey } = useApiKeyCheck();
   const [jobDesc, setJobDesc] = useState('');
   const [company, setCompany] = useState('');
   const [questions, setQuestions] = useState([
@@ -85,6 +87,7 @@ export default function CoverLetterPage() {
   };
 
   const generateAnswer = async (idx) => {
+    if (!checkApiKey()) return;
     const q = questions[idx];
     if (!q.text.trim()) return;
     updateQuestion(idx, 'loading', true);
@@ -350,6 +353,7 @@ export default function CoverLetterPage() {
           {saving ? '저장 중...' : '자소서 저장'}
         </button>
       )}
+      <ApiKeyModal open={showModal} onClose={() => setShowModal(false)} onSave={() => setShowModal(false)} />
     </div>
   );
 }

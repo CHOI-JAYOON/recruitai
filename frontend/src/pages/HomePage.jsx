@@ -6,6 +6,7 @@ import { useToast } from '../contexts/ToastContext';
 import ConfirmModal from '../components/ConfirmModal';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { SkeletonDashboard } from '../components/Skeleton';
+import ApiKeyModal, { useApiKeyCheck } from '../components/ApiKeyModal';
 
 const emptyPortfolio = {
   title: '', company: '', type: 'portfolio', category: '개인 프로젝트', period: '', tech_stack: [],
@@ -67,6 +68,7 @@ export default function HomePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const toast = useToast();
+  const { showModal, setShowModal, checkApiKey } = useApiKeyCheck();
   const [portfolios, setPortfolios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ portfolio: 0, resume: 0, coverletter: 0, careerdesc: 0, interview: 0 });
@@ -150,6 +152,7 @@ export default function HomePage() {
   };
 
   const handleParse = async () => {
+    if (!checkApiKey()) return;
     if (!parseText.trim()) return;
     setParsing(true);
     try {
@@ -638,6 +641,7 @@ export default function HomePage() {
 
       <ConfirmModal open={!!deleteTarget} title="포트폴리오 삭제" message="이 포트폴리오를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
         onConfirm={handleDelete} onCancel={() => setDeleteTarget(null)} />
+      <ApiKeyModal open={showModal} onClose={() => setShowModal(false)} onSave={() => setShowModal(false)} />
     </div>
   );
 }

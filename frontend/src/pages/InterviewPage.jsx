@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import api from '../api/client';
 import LoadingSpinner from '../components/LoadingSpinner';
+import ApiKeyModal, { useApiKeyCheck } from '../components/ApiKeyModal';
 
 const categoryLabels = { technical: '기술', behavioral: '인성', situational: '상황', portfolio: '포트폴리오', resume: '이력서', solution: '솔루션' };
 const categoryStyles = {
@@ -66,6 +67,7 @@ function Timer({ running, onTick }) {
 export default function InterviewPage() {
   const { user } = useAuth();
   const toast = useToast();
+  const { showModal, setShowModal, checkApiKey } = useApiKeyCheck();
   const [tab, setTab] = useState('generate');
   const [jobDesc, setJobDesc] = useState('');
   const [count, setCount] = useState(7);
@@ -120,6 +122,7 @@ export default function InterviewPage() {
   };
 
   const generateQuestions = async () => {
+    if (!checkApiKey()) return;
     if (!jobDesc.trim()) { toast.error('직무기술서를 입력해주세요.'); return; }
     setGenerating(true);
     try {
@@ -154,6 +157,7 @@ export default function InterviewPage() {
   };
 
   const submitAnswer = async () => {
+    if (!checkApiKey()) return;
     if (!userAnswer.trim()) return;
     setEvaluating(true);
     setTimerRunning(false);
@@ -534,6 +538,7 @@ export default function InterviewPage() {
           )}
         </div>
       )}
+      <ApiKeyModal open={showModal} onClose={() => setShowModal(false)} onSave={() => setShowModal(false)} />
     </div>
   );
 }
