@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useBlocker } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import api from '../api/client';
 import { useToast } from '../contexts/ToastContext';
@@ -92,6 +92,17 @@ export default function HomePage() {
   const dragItem = useRef(null);
   const dragOverItem = useRef(null);
   const [dragIdx, setDragIdx] = useState(null);
+
+  // 수정 중 페이지 이탈 방지
+  const isEditing = mode === 'add' || mode === 'edit';
+  const blocker = useBlocker(isEditing);
+  useEffect(() => {
+    if (isEditing) {
+      const handler = (e) => { e.preventDefault(); e.returnValue = ''; };
+      window.addEventListener('beforeunload', handler);
+      return () => window.removeEventListener('beforeunload', handler);
+    }
+  }, [isEditing]);
 
   useEffect(() => {
     loadData();
@@ -366,6 +377,16 @@ export default function HomePage() {
   if (mode === 'add' || mode === 'edit') {
     return (
       <div className="animate-fade-in">
+        {/* 수정 중 페이지 이탈 확인 모달 */}
+        {blocker.state === 'blocked' && (
+          <ConfirmModal
+            message="수정 중인 내용이 있습니다. 이동하면 변경사항이 반영되지 않습니다."
+            confirmText="이동"
+            confirmColor="bg-primary hover:bg-primary-dark"
+            onConfirm={() => blocker.proceed()}
+            onCancel={() => blocker.reset()}
+          />
+        )}
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-900">
             {mode === 'add'
