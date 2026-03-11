@@ -8,8 +8,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.api import auth, portfolios, profile, resume, cover_letter, interview, applications, career_description
+from services.json_db import init_db
 
 app = FastAPI(title="RecruitAI API", version="1.0.0", redirect_slashes=False)
+
+# DATABASE_URL이 설정되면 PostgreSQL 테이블 초기화
+init_db()
 
 allowed_origins = [
     "http://localhost:5173",

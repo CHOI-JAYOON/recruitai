@@ -8,14 +8,18 @@ BASE_DIR = Path(__file__).parent.parent
 DATA_DIR = BASE_DIR / "data"
 DATA_DIR.mkdir(exist_ok=True)
 CHROMA_DB_PATH = DATA_DIR / "chromadb"
-PORTFOLIOS_JSON_PATH = DATA_DIR / "portfolios.json"
-USERS_JSON_PATH = DATA_DIR / "users.json"
-PROFILE_JSON_PATH = DATA_DIR / "profiles.json"
-RESUME_HISTORY_JSON_PATH = DATA_DIR / "resume_history.json"
-COVER_LETTER_HISTORY_JSON_PATH = DATA_DIR / "cover_letter_history.json"
-APPLICATIONS_JSON_PATH = DATA_DIR / "applications.json"
-CAREER_DESC_HISTORY_JSON_PATH = DATA_DIR / "career_desc_history.json"
-INTERVIEW_HISTORY_JSON_PATH = DATA_DIR / "interview_history.json"
+
+# DATABASE_URL이 설정되면 PostgreSQL, 아니면 로컬 파일
+from services.json_db import SmartPath
+
+PORTFOLIOS_JSON_PATH = SmartPath(DATA_DIR / "portfolios.json", "[]")
+USERS_JSON_PATH = SmartPath(DATA_DIR / "users.json", "{}")
+PROFILE_JSON_PATH = SmartPath(DATA_DIR / "profiles.json", "{}")
+RESUME_HISTORY_JSON_PATH = SmartPath(DATA_DIR / "resume_history.json", "{}")
+COVER_LETTER_HISTORY_JSON_PATH = SmartPath(DATA_DIR / "cover_letter_history.json", "{}")
+APPLICATIONS_JSON_PATH = SmartPath(DATA_DIR / "applications.json", "{}")
+CAREER_DESC_HISTORY_JSON_PATH = SmartPath(DATA_DIR / "career_desc_history.json", "{}")
+INTERVIEW_HISTORY_JSON_PATH = SmartPath(DATA_DIR / "interview_history.json", "{}")
 
 DEFAULT_MODEL = "gpt-4o"
 EMBEDDING_MODEL = "text-embedding-3-small"
