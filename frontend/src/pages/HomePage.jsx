@@ -227,11 +227,37 @@ export default function HomePage() {
   const handleResumeResult = async (data) => {
     if (!data) return;
     let count = 0;
-    // 포트폴리오/경력 항목 저장
+    const fmtDate = (d) => d ? d.slice(0, 7).replace('-', '.') : '';
+    // 포트폴리오 항목 저장
     if (data.portfolios?.length > 0) {
       for (const p of data.portfolios) {
         try {
           await api.post('/portfolios', { ...p, username: user.username });
+          count++;
+        } catch { /* skip */ }
+      }
+    }
+    // work_experience → 경력 카드로 홈에도 추가
+    if (data.work_experience?.length > 0) {
+      for (const we of data.work_experience) {
+        try {
+          const start = fmtDate(we.start_date);
+          const end = we.is_current ? '현재' : fmtDate(we.end_date);
+          const period = start && end ? `${start} - ${end}` : start || end || '';
+          await api.post('/portfolios', {
+            username: user.username,
+            title: `${we.company}${we.team ? ' ' + we.team : ''}`,
+            company: we.company || '',
+            type: 'career',
+            category: '정규직',
+            period,
+            role: we.position || '',
+            description: we.description || '',
+            tech_stack: [],
+            achievements: (we.projects || []).map(proj => proj.name + (proj.description ? ': ' + proj.description : '')),
+            links: [],
+            team_size: '',
+          });
           count++;
         } catch { /* skip */ }
       }
