@@ -282,7 +282,7 @@ export default function HomePage() {
       await api.put(`/profile/${user.username}`, updated);
     } catch { /* skip */ }
     await loadData();
-    toast.success(`이력서에서 ${count}개 포트폴리오/경력 항목이 추가되었습니다.`);
+    toast.success('이력서 분석이 완료되었습니다.');
   };
 
   const startAdd = () => { setEditData({ ...emptyPortfolio }); setMode('add'); setTechInput(''); setAchieveInput(''); };

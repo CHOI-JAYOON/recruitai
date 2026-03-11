@@ -379,7 +379,7 @@ export default function MyPage() {
     if ((!updated.trainings || updated.trainings.length === 0) && data.trainings?.length > 0) updated.trainings = data.trainings;
     setProfile(updated);
     setEditing(true);
-    toast.success('이력서에서 프로필 정보가 채워졌습니다. 확인 후 저장해주세요.');
+    toast.success('이력서 분석이 완료되었습니다. 확인 후 저장해주세요.');
   };
 
   const saveApiKey = () => {
