@@ -48,6 +48,7 @@ export default function CoverLetterPage() {
   const [primaryResume, setPrimaryResume] = useState(null);
   const [primaryCareerDesc, setPrimaryCareerDesc] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [showSetup, setShowSetup] = useState(true);
   const chatEndRefs = useRef([]);
 
   useEffect(() => {
@@ -189,158 +190,231 @@ export default function CoverLetterPage() {
   };
 
   return (
-    <div className="animate-fade-in">
-      <div className="flex items-center gap-3 mb-6">
-        <h1 className="text-xl font-bold text-gray-900">자기소개서 작성</h1>
-        <div className="flex flex-wrap items-center gap-2">
-          {primaryResume ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-green-50 text-green-600 text-xs font-semibold rounded-full border border-green-200">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-              이력서: {primaryResume.target_role}
-            </span>
-          ) : (
-            <button onClick={() => navigate('/resume')}
-              className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 text-amber-600 text-xs font-semibold rounded-full border border-amber-200 hover:bg-amber-100 transition cursor-pointer">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              대표 이력서 미설정
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
-            </button>
-          )}
-          {primaryCareerDesc ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-pink-50 text-[#e0437b] text-xs font-semibold rounded-full border border-pink-200">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-              경력기술서: {primaryCareerDesc.target_role}
-            </span>
-          ) : (
-            <button onClick={() => navigate('/career-description')}
-              className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 text-amber-600 text-xs font-semibold rounded-full border border-amber-200 hover:bg-amber-100 transition cursor-pointer">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              대표 경력기술서 미설정
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
-            </button>
-          )}
-        </div>
+    <div className="animate-fade-in max-w-3xl mx-auto">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">자기소개서 작성</h1>
+        <p className="text-sm text-gray-400">AI가 이력서와 경력기술서를 기반으로 자소서를 작성해드립니다.</p>
       </div>
 
-      {/* Company + Job Description */}
-      <div className="gradient-hero-soft rounded-2xl p-5 mb-5">
-        <div className="mb-4">
-          <h2 className="text-[13px] font-bold text-gray-900 mb-2">지원 회사</h2>
-          <input value={company} onChange={(e) => setCompany(e.target.value)}
-            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
-            placeholder="예: 포티투마루, 네이버" />
-        </div>
-        <div>
-          <h2 className="text-[13px] font-bold text-gray-900 mb-2">직무기술서 (선택)</h2>
-          <textarea value={jobDesc} onChange={(e) => setJobDesc(e.target.value)} rows={3}
-            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none transition"
-            placeholder="직무기술서를 붙여넣기하세요..." />
-        </div>
-      </div>
+      {/* Setup Section - Collapsible */}
+      <div className="mb-6">
+        <button onClick={() => setShowSetup(!showSetup)}
+          className="flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-gray-700 transition mb-3">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            className={`transition-transform ${showSetup ? 'rotate-90' : ''}`}>
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+          설정
+          <div className="flex items-center gap-1.5 ml-2">
+            {primaryResume ? (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-50 text-green-600 text-[10px] font-semibold rounded-full">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                이력서
+              </span>
+            ) : (
+              <span className="inline-flex items-center px-2 py-0.5 bg-amber-50 text-amber-500 text-[10px] font-semibold rounded-full">이력서 미설정</span>
+            )}
+            {primaryCareerDesc ? (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-50 text-green-600 text-[10px] font-semibold rounded-full">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                경력기술서
+              </span>
+            ) : (
+              <span className="inline-flex items-center px-2 py-0.5 bg-amber-50 text-amber-500 text-[10px] font-semibold rounded-full">경력기술서 미설정</span>
+            )}
+          </div>
+        </button>
 
-      {/* Questions */}
-      <div className="flex flex-col gap-4">
-        {questions.map((q, idx) => (
-          <div key={idx} className="bg-white rounded-2xl border border-gray-200 shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-5 relative">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0">
-                <span className="text-white text-xs font-bold">{idx + 1}</span>
-              </div>
-              <h3 className="text-[13px] font-bold text-gray-900 flex-1">문항 {idx + 1}</h3>
-              {questions.length > 1 && (
-                <button onClick={() => removeQuestion(idx)} className="text-xs text-gray-400 hover:text-red-500 transition">삭제</button>
+        {showSetup && (
+          <div className="animate-fade-in space-y-3">
+            {/* Primary Resume & Career Desc badges */}
+            <div className="flex flex-wrap gap-2">
+              {primaryResume ? (
+                <div className="flex items-center gap-2 px-3.5 py-2.5 bg-green-50 border border-green-100 rounded-xl">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                  <span className="text-xs font-semibold text-green-700">이력서: {primaryResume.target_role}</span>
+                </div>
+              ) : (
+                <button onClick={() => navigate('/resume')}
+                  className="flex items-center gap-2 px-3.5 py-2.5 bg-amber-50 border border-amber-100 rounded-xl hover:bg-amber-100 transition group">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  <span className="text-xs font-semibold text-amber-600">대표 이력서 설정하기</span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-x-0.5 transition-transform"><polyline points="9 18 15 12 9 6" /></svg>
+                </button>
+              )}
+              {primaryCareerDesc ? (
+                <div className="flex items-center gap-2 px-3.5 py-2.5 bg-pink-50 border border-pink-100 rounded-xl">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e0437b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                  <span className="text-xs font-semibold text-[#e0437b]">경력기술서: {primaryCareerDesc.target_role}</span>
+                </div>
+              ) : (
+                <button onClick={() => navigate('/career-description')}
+                  className="flex items-center gap-2 px-3.5 py-2.5 bg-amber-50 border border-amber-100 rounded-xl hover:bg-amber-100 transition group">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  <span className="text-xs font-semibold text-amber-600">대표 경력기술서 설정하기</span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-x-0.5 transition-transform"><polyline points="9 18 15 12 9 6" /></svg>
+                </button>
               )}
             </div>
 
-            <textarea value={q.text} onChange={(e) => updateQuestion(idx, 'text', e.target.value)} rows={2}
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white resize-none mb-3 transition"
-              placeholder="자소서 문항을 입력하세요..." />
+            {/* Company & Job Desc */}
+            <div className="bg-white rounded-2xl border border-gray-100 p-5 space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-500 mb-1.5">지원 회사</label>
+                <input value={company} onChange={(e) => setCompany(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition"
+                  placeholder="예: 포티투마루, 네이버" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 mb-1.5">직무기술서 (선택)</label>
+                <textarea value={jobDesc} onChange={(e) => setJobDesc(e.target.value)} rows={3}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white resize-none transition"
+                  placeholder="직무기술서를 붙여넣기하세요..." />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
-            <div className="flex items-center gap-3 mb-3">
-              <label className="text-xs text-gray-500 font-medium">최대 글자수:</label>
-              <input type="number" value={q.maxLength} onChange={(e) => updateQuestion(idx, 'maxLength', parseInt(e.target.value) || 500)}
-                className="w-20 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-primary/20" />
-              <button onClick={() => generateAnswer(idx)} disabled={q.loading || !q.text.trim()}
-                className="ml-auto px-5 py-2.5 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary-dark transition disabled:opacity-50">
-                {q.loading ? 'AI 작성 중...' : 'AI 답변 생성'}
-              </button>
+      {/* Divider */}
+      <div className="border-t border-gray-100 mb-6" />
+
+      {/* Questions */}
+      <div className="flex flex-col gap-6">
+        {questions.map((q, idx) => (
+          <div key={idx} className="group">
+            {/* Question Header */}
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-xs font-bold text-primary bg-primary/5 px-2.5 py-1 rounded-lg">Q{idx + 1}</span>
+              {questions.length > 1 && (
+                <button onClick={() => removeQuestion(idx)}
+                  className="ml-auto text-xs text-gray-300 hover:text-red-400 transition opacity-0 group-hover:opacity-100">
+                  삭제
+                </button>
+              )}
             </div>
 
-            {q.loading && <LoadingSpinner text="대표 이력서/경력기술서 기반 답변 생성 중..." />}
+            {/* Question Input */}
+            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+              <textarea value={q.text} onChange={(e) => updateQuestion(idx, 'text', e.target.value)} rows={2}
+                className="w-full px-5 py-4 text-[15px] text-gray-800 bg-transparent focus:outline-none resize-none placeholder:text-gray-300 leading-relaxed"
+                placeholder="자소서 문항을 입력하세요..." />
 
-            {q.answer && (
-              <div className="mt-3 border-t border-gray-100 pt-4 animate-fade-in">
-                {/* Answer display */}
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-xs font-bold text-gray-500">AI 생성 답변</p>
-                  <div className="flex items-center gap-2">
-                    <p className="text-xs text-gray-400">{q.answer.answer?.length || 0}자</p>
-                    <button onClick={() => generateAnswer(idx)} disabled={q.loading}
-                      className="p-1.5 rounded-lg hover:bg-gray-100 transition disabled:opacity-50" title="다시 생성">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b95a1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" /></svg>
-                    </button>
-                    <button onClick={() => copyAnswer(idx)} className="p-1.5 rounded-lg hover:bg-gray-100 transition" title="복사하기">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b95a1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>
-                    </button>
-                  </div>
+              <div className="px-5 pb-4 flex items-center gap-3">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[11px] text-gray-400">글자수</span>
+                  <input type="number" value={q.maxLength} onChange={(e) => updateQuestion(idx, 'maxLength', parseInt(e.target.value) || 500)}
+                    className="w-16 px-2 py-1 bg-gray-50 border border-gray-200 rounded-lg text-xs text-gray-600 focus:outline-none focus:ring-1 focus:ring-primary/20 text-center" />
                 </div>
-                <div className="bg-gray-50 rounded-xl p-4 mb-4">
-                  <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
-                    {q.previousAnswer ? diffHighlight(q.previousAnswer, q.answer.answer).map((seg, si, arr) => {
-                      const space = si > 0 ? ' ' : '';
-                      return seg.bold
-                        ? <span key={si}>{space}<mark className="bg-yellow-100 text-gray-900 font-semibold rounded-sm px-0.5">{seg.text}</mark></span>
-                        : <span key={si}>{space}{seg.text}</span>;
-                    }) : q.answer.answer}
-                  </p>
-                </div>
-
-                {/* Chat refinement */}
-                <div className="border-t border-gray-100 pt-3">
-                  <p className="text-xs font-bold text-gray-400 mb-3 flex items-center gap-1.5">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                    AI와 대화하며 수정하기
-                  </p>
-
-                  {q.chatMessages.length > 0 && (
-                    <div className="flex flex-col gap-2 mb-3 max-h-60 overflow-y-auto">
-                      {q.chatMessages.map((msg, mi) => (
-                        <div key={mi} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                          <div className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-[13px] ${
-                            msg.role === 'user'
-                              ? 'bg-primary text-white rounded-br-md'
-                              : 'bg-gray-100 text-gray-700 rounded-bl-md'
-                          }`}>
-                            <p className="whitespace-pre-wrap">{msg.content}</p>
-                          </div>
-                        </div>
-                      ))}
-                      {q.chatLoading && (
-                        <div className="flex justify-start">
-                          <div className="bg-gray-100 rounded-2xl rounded-bl-md px-3.5 py-2 text-[13px] text-gray-400">
-                            수정 중...
-                          </div>
-                        </div>
-                      )}
-                      <div ref={(el) => (chatEndRefs.current[idx] = el)} />
-                    </div>
+                <button onClick={() => generateAnswer(idx)} disabled={q.loading || !q.text.trim()}
+                  className="ml-auto inline-flex items-center gap-1.5 px-4 py-2 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary-dark transition disabled:opacity-40">
+                  {q.loading ? (
+                    <>
+                      <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" opacity="0.25" /><path d="M12 2a10 10 0 0 1 10 10" /></svg>
+                      생성 중...
+                    </>
+                  ) : (
+                    <>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>
+                      AI 작성
+                    </>
                   )}
+                </button>
+              </div>
+            </div>
 
-                  <div className="flex items-center gap-2">
-                    <input
-                      value={q.chatInput || ''}
-                      onChange={(e) => updateQuestion(idx, 'chatInput', e.target.value)}
-                      onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleRefine(idx); } }}
-                      className="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
-                      placeholder="수정 요청을 입력하세요... (예: 좀 더 구체적으로 써줘)"
-                    />
-                    <button
-                      onClick={() => handleRefine(idx)}
-                      disabled={q.chatLoading || !q.chatInput?.trim()}
-                      className="px-4 py-2.5 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary-dark transition disabled:opacity-50 shrink-0"
-                    >
-                      전송
-                    </button>
+            {q.loading && (
+              <div className="mt-3">
+                <LoadingSpinner text="대표 이력서/경력기술서 기반 답변 생성 중..." />
+              </div>
+            )}
+
+            {/* Answer */}
+            {q.answer && (
+              <div className="mt-3 animate-fade-in">
+                <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+                  {/* Answer Header */}
+                  <div className="flex items-center justify-between px-5 pt-4 pb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 rounded-md bg-gradient-to-br from-primary to-blue-400 flex items-center justify-center">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z" /></svg>
+                      </div>
+                      <span className="text-xs font-bold text-gray-500">AI 생성 답변</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-[11px] text-gray-400 mr-2">{q.answer.answer?.length || 0}자</span>
+                      <button onClick={() => generateAnswer(idx)} disabled={q.loading}
+                        className="p-1.5 rounded-lg hover:bg-gray-100 transition disabled:opacity-50" title="다시 생성">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#adb5bd" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" /></svg>
+                      </button>
+                      <button onClick={() => copyAnswer(idx)} className="p-1.5 rounded-lg hover:bg-gray-100 transition" title="복사하기">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#adb5bd" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Answer Body */}
+                  <div className="px-5 pb-4">
+                    <div className="bg-gray-50/70 rounded-xl p-4">
+                      <p className="text-[14px] text-gray-800 whitespace-pre-wrap leading-[1.8]">
+                        {q.previousAnswer ? diffHighlight(q.previousAnswer, q.answer.answer).map((seg, si) => {
+                          const space = si > 0 ? ' ' : '';
+                          return seg.bold
+                            ? <span key={si}>{space}<mark className="bg-yellow-100 text-gray-900 font-semibold rounded-sm px-0.5">{seg.text}</mark></span>
+                            : <span key={si}>{space}{seg.text}</span>;
+                        }) : q.answer.answer}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Chat Refinement */}
+                  <div className="border-t border-gray-50 px-5 py-4">
+                    {/* Chat History */}
+                    {q.chatMessages.length > 0 && (
+                      <div className="flex flex-col gap-2.5 mb-4 max-h-64 overflow-y-auto">
+                        {q.chatMessages.map((msg, mi) => (
+                          <div key={mi} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                            <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-[13px] leading-relaxed ${
+                              msg.role === 'user'
+                                ? 'bg-primary text-white rounded-br-lg'
+                                : 'bg-gray-50 text-gray-600 rounded-bl-lg'
+                            }`}>
+                              <p className="whitespace-pre-wrap">{msg.content}</p>
+                            </div>
+                          </div>
+                        ))}
+                        {q.chatLoading && (
+                          <div className="flex justify-start">
+                            <div className="bg-gray-50 rounded-2xl rounded-bl-lg px-4 py-2.5 text-[13px] text-gray-400 flex items-center gap-2">
+                              <svg className="animate-spin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" opacity="0.25" /><path d="M12 2a10 10 0 0 1 10 10" /></svg>
+                              수정 중...
+                            </div>
+                          </div>
+                        )}
+                        <div ref={(el) => (chatEndRefs.current[idx] = el)} />
+                      </div>
+                    )}
+
+                    {/* Chat Input */}
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 relative">
+                        <input
+                          value={q.chatInput || ''}
+                          onChange={(e) => updateQuestion(idx, 'chatInput', e.target.value)}
+                          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleRefine(idx); } }}
+                          className="w-full pl-4 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition"
+                          placeholder="수정 요청을 입력하세요... (예: 좀 더 구체적으로 써줘)"
+                        />
+                        <button
+                          onClick={() => handleRefine(idx)}
+                          disabled={q.chatLoading || !q.chatInput?.trim()}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-primary hover:bg-primary/10 rounded-lg transition disabled:opacity-30 disabled:hover:bg-transparent"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -349,16 +423,21 @@ export default function CoverLetterPage() {
         ))}
       </div>
 
+      {/* Add Question */}
       <button onClick={addQuestion}
-        className="mt-4 w-full py-3 border-2 border-dashed border-gray-300 text-sm text-gray-500 font-medium rounded-xl hover:border-primary hover:text-primary transition">
+        className="mt-6 w-full py-3.5 border-2 border-dashed border-gray-200 text-sm text-gray-400 font-medium rounded-2xl hover:border-primary/40 hover:text-primary hover:bg-primary/[0.02] transition">
         + 문항 추가
       </button>
 
+      {/* Save Button */}
       {hasAnyAnswer && (
-        <button onClick={handleSave} disabled={saving}
-          className="mt-4 ml-auto block px-5 py-2 bg-gray-800 text-white text-sm font-semibold rounded-lg hover:bg-gray-900 transition disabled:opacity-50">
-          {saving ? '저장 중...' : '자소서 저장'}
-        </button>
+        <div className="mt-6 flex justify-end">
+          <button onClick={handleSave} disabled={saving}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white text-sm font-semibold rounded-xl hover:bg-gray-800 transition disabled:opacity-50 shadow-sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" /><polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" /></svg>
+            {saving ? '저장 중...' : '자소서 저장'}
+          </button>
+        </div>
       )}
       <ApiKeyModal open={showModal} onClose={() => setShowModal(false)} onSave={() => setShowModal(false)} />
     </div>
