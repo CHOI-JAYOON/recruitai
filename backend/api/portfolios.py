@@ -46,6 +46,17 @@ def create_portfolio(portfolio: Portfolio, x_api_key: str = Header(default="")):
     return portfolio
 
 
+@router.post("/bulk")
+def create_portfolios_bulk(portfolios: list[Portfolio], x_api_key: str = Header(default="")):
+    """Save multiple portfolios at once (single read-write cycle)."""
+    saved = storage.save_bulk(portfolios)
+    if x_api_key and saved:
+        vs = VectorStoreService(x_api_key)
+        for p in saved:
+            vs.upsert_portfolio(p)
+    return saved
+
+
 @router.put("/{portfolio_id}")
 def update_portfolio(portfolio_id: str, portfolio: Portfolio, x_api_key: str = Header(default="")):
     portfolio.id = portfolio_id

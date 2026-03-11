@@ -15,11 +15,24 @@ from pathlib import Path
 
 _db_url = os.getenv("DATABASE_URL")
 
+# Connection pool (reuse connections instead of creating new ones every call)
+_pool = None
+
 
 def _get_conn():
-    import psycopg2
+    global _pool
+    if _pool is None:
+        import psycopg2.pool
 
-    return psycopg2.connect(_db_url, sslmode="require")
+        _pool = psycopg2.pool.ThreadedConnectionPool(
+            minconn=1, maxconn=5, dsn=_db_url, sslmode="require"
+        )
+    return _pool.getconn()
+
+
+def _put_conn(conn):
+    if _pool is not None:
+        _pool.putconn(conn)
 
 
 def init_db():
@@ -27,45 +40,51 @@ def init_db():
     if not _db_url:
         return
     conn = _get_conn()
-    with conn.cursor() as cur:
-        cur.execute(
-            """
-            CREATE TABLE IF NOT EXISTS json_store (
-                key TEXT PRIMARY KEY,
-                data TEXT NOT NULL
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS json_store (
+                    key TEXT PRIMARY KEY,
+                    data TEXT NOT NULL
+                )
+                """
             )
-            """
-        )
-    conn.commit()
-    conn.close()
+        conn.commit()
+    finally:
+        _put_conn(conn)
 
 
 def db_read(key: str) -> str | None:
     if not _db_url:
         return None
     conn = _get_conn()
-    with conn.cursor() as cur:
-        cur.execute("SELECT data FROM json_store WHERE key = %s", (key,))
-        row = cur.fetchone()
-    conn.close()
-    return row[0] if row else None
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT data FROM json_store WHERE key = %s", (key,))
+            row = cur.fetchone()
+        return row[0] if row else None
+    finally:
+        _put_conn(conn)
 
 
 def db_write(key: str, data: str) -> bool:
     if not _db_url:
         return False
     conn = _get_conn()
-    with conn.cursor() as cur:
-        cur.execute(
-            """
-            INSERT INTO json_store (key, data) VALUES (%s, %s)
-            ON CONFLICT (key) DO UPDATE SET data = EXCLUDED.data
-            """,
-            (key, data),
-        )
-    conn.commit()
-    conn.close()
-    return True
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO json_store (key, data) VALUES (%s, %s)
+                ON CONFLICT (key) DO UPDATE SET data = EXCLUDED.data
+                """,
+                (key, data),
+            )
+        conn.commit()
+        return True
+    finally:
+        _put_conn(conn)
 
 
 class _NoOpParent:

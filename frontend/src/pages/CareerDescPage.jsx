@@ -6,9 +6,8 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import ApiKeyModal, { useApiKeyCheck } from '../components/ApiKeyModal';
 
 const steps = [
-  { num: 1, label: '직무 선택' },
-  { num: 2, label: '경력 선택' },
-  { num: 3, label: '결과 확인' },
+  { num: 1, label: '직무 · 경력 선택' },
+  { num: 2, label: '결과 확인' },
 ];
 
 export default function CareerDescPage() {
@@ -46,7 +45,7 @@ export default function CareerDescPage() {
         target_role: targetRole,
       });
       setResult(res.data);
-      setStep(3);
+      setStep(2);
       toast.success('경력기술서가 생성되었습니다!');
     } catch (err) {
       toast.error(err.response?.data?.detail || '경력기술서 생성 실패. API 키를 확인해주세요.');
@@ -108,32 +107,8 @@ export default function CareerDescPage() {
         ))}
       </div>
 
-      {/* Step 1: Target Role */}
-      {step === 1 && (
-        <div className="animate-fade-in">
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-2">어떤 직무에 지원하시나요?</h2>
-            <p className="text-sm text-gray-500 mb-5">지원 직무에 맞춰 경력기술서가 최적화됩니다.</p>
-            <input
-              value={targetRole}
-              onChange={(e) => setTargetRole(e.target.value)}
-              className="w-full px-4 py-4 bg-gray-50 border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition"
-              placeholder="예: AI 엔지니어, 백엔드 개발자, 프론트엔드 개발자"
-              onKeyDown={(e) => e.key === 'Enter' && targetRole.trim() && setStep(2)}
-            />
-            <button
-              onClick={() => setStep(2)}
-              disabled={!targetRole.trim()}
-              className="mt-5 w-full py-3.5 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition disabled:opacity-40 text-[15px]"
-            >
-              다음
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Step 2: Career Selection (grouped by company) */}
-      {step === 2 && (() => {
+      {/* Step 1: Target Role + Career Selection (combined) */}
+      {step === 1 && (() => {
         const companyOrder = [];
         const companyMap = {};
         portfolios.forEach((p) => {
@@ -142,7 +117,20 @@ export default function CareerDescPage() {
           companyMap[key].push(p);
         });
         return (
-          <div className="animate-fade-in">
+          <div className="animate-fade-in flex flex-col gap-5">
+            {/* Target Role */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-6">
+              <h2 className="text-lg font-bold text-gray-900 mb-2">어떤 직무에 지원하시나요?</h2>
+              <p className="text-sm text-gray-500 mb-4">지원 직무에 맞춰 경력기술서가 최적화됩니다.</p>
+              <input
+                value={targetRole}
+                onChange={(e) => setTargetRole(e.target.value)}
+                className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition"
+                placeholder="예: AI 엔지니어, 백엔드 개발자, 프론트엔드 개발자"
+              />
+            </div>
+
+            {/* Career Selection */}
             <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -202,23 +190,19 @@ export default function CareerDescPage() {
                   ))}
                 </div>
               )}
-              <div className="flex gap-3">
-                <button onClick={() => setStep(1)}
-                  className="flex-1 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition">이전</button>
-                <button onClick={handleGenerate}
-                  disabled={generating}
-                  className="flex-1 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition disabled:opacity-40">
-                  {generating ? 'AI 생성 중...' : '경력기술서 생성'}
-                </button>
-              </div>
+              <button onClick={handleGenerate}
+                disabled={generating || !targetRole.trim()}
+                className="w-full py-3.5 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition disabled:opacity-40 text-[15px]">
+                {generating ? 'AI 생성 중...' : '경력기술서 생성'}
+              </button>
             </div>
-            {generating && <div className="mt-4"><LoadingSpinner text="AI가 경력기술서를 작성하고 있습니다..." /></div>}
+            {generating && <div className="mt-2"><LoadingSpinner text="AI가 경력기술서를 작성하고 있습니다..." /></div>}
           </div>
         );
       })()}
 
-      {/* Step 3: Result */}
-      {step === 3 && result && (
+      {/* Step 2: Result */}
+      {step === 2 && result && (
         <div className="animate-fade-in">
           <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-6">
             <div className="flex items-center justify-between mb-5">

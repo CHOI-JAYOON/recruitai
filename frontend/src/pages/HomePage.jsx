@@ -237,77 +237,90 @@ export default function HomePage() {
 
   const handleResumeResult = async (data) => {
     if (!data) return;
-    let count = 0;
     const fmtDate = (d) => d ? d.slice(0, 7).replace('-', '.') : '';
     // 기존 포트폴리오 목록 가져와서 중복 체크용 제목 Set 생성
     const existingTitles = new Set(portfolios.map(p => p.title));
-    // 포트폴리오 항목 저장 (중복 제목 스킵)
+
+    // 일괄 저장할 포트폴리오 모아두기
+    const newPortfolios = [];
+
+    // 포트폴리오 항목 (중복 제목 스킵)
     if (data.portfolios?.length > 0) {
       for (const p of data.portfolios) {
         if (existingTitles.has(p.title)) continue;
-        try {
-          await api.post('/portfolios', { ...p, username: user.username });
-          count++;
-          existingTitles.add(p.title);
-        } catch { /* skip */ }
+        newPortfolios.push({ ...p, username: user.username });
+        existingTitles.add(p.title);
       }
     }
-    // work_experience → 경력 카드로 홈에도 추가 (중복 제목 스킵)
+    // work_experience → 경력 카드 (중복 제목 스킵)
     if (data.work_experience?.length > 0) {
       for (const we of data.work_experience) {
         const title = `${we.company}${we.team ? ' ' + we.team : ''}`;
         if (existingTitles.has(title)) continue;
-        try {
-          const start = fmtDate(we.start_date);
-          const end = we.is_current ? '현재' : fmtDate(we.end_date);
-          const period = start && end ? `${start} - ${end}` : start || end || '';
-          await api.post('/portfolios', {
-            username: user.username,
-            title,
-            company: we.company || '',
-            type: 'career',
-            category: '정규직',
-            period,
-            role: we.position || '',
-            description: we.description || '',
-            tech_stack: [],
-            achievements: (we.projects || []).map(proj => proj.name + (proj.description ? ': ' + proj.description : '')),
-            links: [],
-            team_size: '',
-          });
-          count++;
-          existingTitles.add(title);
-        } catch { /* skip */ }
+        const start = fmtDate(we.start_date);
+        const end = we.is_current ? '현재' : fmtDate(we.end_date);
+        const period = start && end ? `${start} - ${end}` : start || end || '';
+        newPortfolios.push({
+          username: user.username,
+          title,
+          company: we.company || '',
+          type: 'career',
+          category: '정규직',
+          period,
+          role: we.position || '',
+          description: we.description || '',
+          tech_stack: [],
+          achievements: (we.projects || []).map(proj => proj.name + (proj.description ? ': ' + proj.description : '')),
+          links: [],
+          team_size: '',
+        });
+        existingTitles.add(title);
       }
     }
-    // 프로필 정보 업데이트 (빈 필드는 채우고, 배열 필드는 기존 항목에 새 항목 추가)
-    try {
-      const profileRes = await api.get(`/profile/${user.username}`);
-      const existing = profileRes.data || {};
-      const updated = { ...existing };
-      if (!updated.name && data.name) updated.name = data.name;
-      if (!updated.email && data.email) updated.email = data.email;
-      if (!updated.phone && data.phone) updated.phone = data.phone;
-      if (!updated.github && data.github) updated.github = data.github;
-      if (!updated.linkedin && data.linkedin) updated.linkedin = data.linkedin;
-      if (!updated.blog && data.blog) updated.blog = data.blog;
-      if (!updated.summary && data.summary) updated.summary = data.summary;
-      // 배열 필드: 기존 항목 유지 + 새 항목 추가 (중복 제거)
-      const mergeArr = (existArr, newArr, key) => {
-        if (!newArr?.length) return existArr || [];
-        const prev = existArr || [];
-        const existKeys = new Set(prev.map(i => JSON.stringify(i[key] || i)));
-        const added = newArr.filter(i => !existKeys.has(JSON.stringify(i[key] || i)));
-        return [...prev, ...added];
-      };
-      if (data.education?.length > 0) updated.education = mergeArr(updated.education, data.education, 'school');
-      if (data.work_experience?.length > 0) updated.work_experience = mergeArr(updated.work_experience, data.work_experience, 'company');
-      if (data.certificates?.length > 0) updated.certificates = mergeArr(updated.certificates, data.certificates, 'name');
-      if (data.awards?.length > 0) updated.awards = mergeArr(updated.awards, data.awards, 'name');
-      if (data.trainings?.length > 0) updated.trainings = mergeArr(updated.trainings, data.trainings, 'name');
-      await api.put(`/profile/${user.username}`, updated);
-    } catch { /* skip */ }
-    await loadData();
+
+    // 포트폴리오 + 프로필 업데이트를 병렬로 실행
+    const bulkSave = newPortfolios.length > 0
+      ? api.post('/portfolios/bulk', newPortfolios).catch(() => {})
+      : Promise.resolve();
+
+    const profileSave = (async () => {
+      try {
+        const profileRes = await api.get(`/profile/${user.username}`);
+        const existing = profileRes.data || {};
+        const updated = { ...existing };
+        if (!updated.name && data.name) updated.name = data.name;
+        if (!updated.email && data.email) updated.email = data.email;
+        if (!updated.phone && data.phone) updated.phone = data.phone;
+        if (!updated.github && data.github) updated.github = data.github;
+        if (!updated.linkedin && data.linkedin) updated.linkedin = data.linkedin;
+        if (!updated.blog && data.blog) updated.blog = data.blog;
+        if (!updated.summary && data.summary) updated.summary = data.summary;
+        // 배열 필드: 기존 항목 유지 + 새 항목 추가 (중복 제거)
+        const mergeArr = (existArr, newArr, key) => {
+          if (!newArr?.length) return existArr || [];
+          const prev = existArr || [];
+          const existKeys = new Set(prev.map(i => JSON.stringify(i[key] || i)));
+          const added = newArr.filter(i => !existKeys.has(JSON.stringify(i[key] || i)));
+          return [...prev, ...added];
+        };
+        if (data.education?.length > 0) updated.education = mergeArr(updated.education, data.education, 'school');
+        if (data.work_experience?.length > 0) updated.work_experience = mergeArr(updated.work_experience, data.work_experience, 'company');
+        if (data.certificates?.length > 0) updated.certificates = mergeArr(updated.certificates, data.certificates, 'name');
+        if (data.awards?.length > 0) updated.awards = mergeArr(updated.awards, data.awards, 'name');
+        if (data.trainings?.length > 0) updated.trainings = mergeArr(updated.trainings, data.trainings, 'name');
+        await api.put(`/profile/${user.username}`, updated);
+      } catch { /* skip */ }
+    })();
+
+    await Promise.all([bulkSave, profileSave]);
+
+    // 포트폴리오와 프로필만 선택적 리로드 (다른 데이터는 변경 없으므로 스킵)
+    const [portfolioRes, profileRes] = await Promise.all([
+      api.get(`/portfolios?username=${user.username}`),
+      api.get(`/profile/${user.username}`),
+    ]);
+    setPortfolios(portfolioRes.data);
+    setProfile(profileRes.data);
     toast.success('이력서 분석이 완료되었습니다.');
   };
 
@@ -387,13 +400,12 @@ export default function HomePage() {
             onCancel={() => blocker.reset()}
           />
         )}
-        <div className="flex items-center justify-between mb-6">
+        <div className="mb-6">
           <h1 className="text-xl font-bold text-gray-900">
             {mode === 'add'
               ? (editData?.type === 'career' ? '경력 추가' : '포트폴리오 추가')
               : (editData?.type === 'career' ? '경력 수정' : '포트폴리오 수정')}
           </h1>
-          <button onClick={() => { setMode('list'); setEditData(null); }} className="text-sm text-gray-500 hover:text-gray-700 font-medium">취소</button>
         </div>
 
         {/* Type toggle */}
@@ -553,10 +565,16 @@ export default function HomePage() {
                 <button onClick={addAchieve} className="px-4 py-2 bg-gray-100 text-sm font-medium text-gray-700 rounded-xl hover:bg-gray-200 transition">추가</button>
               </div>
             </div>
-            <button onClick={handleSave} disabled={saving}
-              className="mt-2 w-full py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition disabled:opacity-50">
-              {saving ? '저장 중...' : '저장'}
-            </button>
+            <div className="mt-3 flex justify-end gap-2">
+              <button onClick={() => { setMode('list'); setEditData(null); }}
+                className="px-5 py-2.5 text-sm font-medium text-gray-500 bg-gray-100 rounded-xl hover:bg-gray-200 transition">
+                취소
+              </button>
+              <button onClick={handleSave} disabled={saving}
+                className="px-6 py-2.5 text-sm bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition disabled:opacity-50">
+                {saving ? '저장 중...' : '저장'}
+              </button>
+            </div>
           </div>
         )}
         <ApiKeyModal open={showModal} onClose={() => setShowModal(false)} onSave={() => setShowModal(false)} />

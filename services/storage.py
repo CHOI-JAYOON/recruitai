@@ -44,6 +44,25 @@ class StorageService:
             portfolios.append(portfolio)
         self._write(portfolios)
 
+    def save_bulk(self, new_portfolios: list[Portfolio]) -> list[Portfolio]:
+        """Save multiple portfolios at once (1 read + 1 write cycle)."""
+        if not new_portfolios:
+            return []
+        portfolios = self._load_all_raw()
+        existing_ids = {p.id for p in portfolios}
+        added = []
+        for p in new_portfolios:
+            if p.id in existing_ids:
+                portfolios = [
+                    old if old.id != p.id else p for old in portfolios
+                ]
+            else:
+                portfolios.append(p)
+                existing_ids.add(p.id)
+            added.append(p)
+        self._write(portfolios)
+        return added
+
     def delete(self, portfolio_id: str) -> None:
         portfolios = [p for p in self._load_all_raw() if p.id != portfolio_id]
         self._write(portfolios)

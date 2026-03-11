@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import api from '../api/client';
@@ -37,6 +38,7 @@ function diffHighlight(oldText, newText) {
 export default function CoverLetterPage() {
   const { user } = useAuth();
   const toast = useToast();
+  const navigate = useNavigate();
   const { showModal, setShowModal, checkApiKey } = useApiKeyCheck();
   const [jobDesc, setJobDesc] = useState('');
   const [company, setCompany] = useState('');
@@ -197,10 +199,12 @@ export default function CoverLetterPage() {
               이력서: {primaryResume.target_role}
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 text-amber-600 text-xs font-semibold rounded-full border border-amber-200">
+            <button onClick={() => navigate('/resume')}
+              className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 text-amber-600 text-xs font-semibold rounded-full border border-amber-200 hover:bg-amber-100 transition cursor-pointer">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
               대표 이력서 미설정
-            </span>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+            </button>
           )}
           {primaryCareerDesc ? (
             <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-pink-50 text-[#e0437b] text-xs font-semibold rounded-full border border-pink-200">
@@ -208,10 +212,12 @@ export default function CoverLetterPage() {
               경력기술서: {primaryCareerDesc.target_role}
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 text-amber-600 text-xs font-semibold rounded-full border border-amber-200">
+            <button onClick={() => navigate('/career-description')}
+              className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 text-amber-600 text-xs font-semibold rounded-full border border-amber-200 hover:bg-amber-100 transition cursor-pointer">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
               대표 경력기술서 미설정
-            </span>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+            </button>
           )}
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import api from '../api/client';
@@ -67,6 +68,7 @@ function Timer({ running, onTick }) {
 export default function InterviewPage() {
   const { user } = useAuth();
   const toast = useToast();
+  const navigate = useNavigate();
   const { showModal, setShowModal, checkApiKey } = useApiKeyCheck();
   const [tab, setTab] = useState('generate');
   const [jobDesc, setJobDesc] = useState('');
@@ -232,41 +234,32 @@ export default function InterviewPage() {
 
       {/* Context info banner */}
       <div className="flex flex-wrap items-center gap-2 mb-5">
-        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold ${
-          primaryResume ? 'bg-green-50 border-green-200 text-green-600' : 'bg-amber-50 border-amber-200 text-amber-600'
-        }`}>
-          {primaryResume ? (
-            <>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-              대표 이력서: {primaryResume.target_role}
-            </>
-          ) : (
-            <>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              대표 이력서 미설정
-            </>
-          )}
-        </div>
-        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold ${
-          primaryCareerDesc ? 'bg-green-50 border-green-200 text-green-600' : careerDescCount > 0 ? 'bg-amber-50 border-amber-200 text-amber-600' : 'bg-gray-50 border-gray-200 text-gray-400'
-        }`}>
-          {primaryCareerDesc ? (
-            <>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-              대표 경력기술서: {primaryCareerDesc.target_role}
-            </>
-          ) : careerDescCount > 0 ? (
-            <>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              대표 경력기술서 미설정
-            </>
-          ) : (
-            <>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              경력기술서 없음
-            </>
-          )}
-        </div>
+        {primaryResume ? (
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold bg-green-50 border-green-200 text-green-600">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+            대표 이력서: {primaryResume.target_role}
+          </div>
+        ) : (
+          <button onClick={() => navigate('/resume')}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold bg-amber-50 border-amber-200 text-amber-600 hover:bg-amber-100 transition cursor-pointer">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            대표 이력서 미설정
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+          </button>
+        )}
+        {primaryCareerDesc ? (
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold bg-green-50 border-green-200 text-green-600">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+            대표 경력기술서: {primaryCareerDesc.target_role}
+          </div>
+        ) : (
+          <button onClick={() => navigate('/career-description')}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold bg-amber-50 border-amber-200 text-amber-600 hover:bg-amber-100 transition cursor-pointer">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            {careerDescCount > 0 ? '대표 경력기술서 미설정' : '경력기술서 없음'}
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+          </button>
+        )}
         <p className="text-[11px] text-gray-400 w-full mt-1">
           대표 이력서와 경력기술서를 기반으로 맞춤형 면접 질문이 생성됩니다
         </p>

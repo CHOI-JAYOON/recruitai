@@ -808,19 +808,31 @@ export default function MyPage() {
           {profile.photo_url ? (
             <img src={profile.photo_url} alt="증명사진" className="w-20 h-24 object-cover rounded-xl border border-gray-200" />
           ) : (
-            <div className="w-20 h-24 bg-gray-100 rounded-xl border border-gray-200 flex items-center justify-center text-gray-400 text-xs">없음</div>
+            <div className="w-20 h-24 bg-gray-100 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+            </div>
           )}
-          <input type="file" accept="image/*" onChange={async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const formData = new FormData();
-            formData.append('file', file);
-            try {
-              const res = await api.post(`/profile/${user.username}/photo`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-              setProfile({ ...profile, photo_url: res.data.photo_url });
-              toast.success('사진이 업로드되었습니다.');
-            } catch { toast.error('사진 업로드 실패'); }
-          }} className="text-sm" />
+          <div className="flex flex-col gap-2">
+            <label className="px-4 py-2 bg-primary/10 text-primary text-sm font-semibold rounded-xl hover:bg-primary/20 transition cursor-pointer inline-flex items-center gap-1.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              사진 업로드
+              <input type="file" accept="image/*" onChange={async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const formData = new FormData();
+                formData.append('file', file);
+                try {
+                  const res = await api.post(`/profile/${user.username}/photo`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+                  setProfile({ ...profile, photo_url: res.data.photo_url });
+                  toast.success('사진이 업로드되었습니다.');
+                } catch { toast.error('사진 업로드 실패'); }
+              }} className="hidden" />
+            </label>
+            {profile.photo_url && (
+              <button onClick={() => setProfile({ ...profile, photo_url: '' })}
+                className="text-xs text-gray-400 hover:text-red-500 transition">삭제</button>
+            )}
+          </div>
         </div>
       </div>
       {[
@@ -1669,21 +1681,12 @@ export default function MyPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-gray-900">마이페이지</h1>
         {activeTab === 'profile' && !editing && (
-          <div className="flex gap-2">
-            <button
-              onClick={() => { if (checkApiKey()) setShowResumeUpload(true); }}
-              className="px-4 py-2 text-sm font-semibold text-indigo-600 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition flex items-center gap-1.5"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
-              이력서로 채우기
-            </button>
-            <button
-              onClick={() => setEditing(true)}
-              className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition"
-            >
-              수정
-            </button>
-          </div>
+          <button
+            onClick={() => setEditing(true)}
+            className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition"
+          >
+            수정
+          </button>
         )}
       </div>
 

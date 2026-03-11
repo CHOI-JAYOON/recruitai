@@ -193,11 +193,16 @@ class DocumentGenerator:
             for run in p.runs:
                 run.font.size = Pt(10)
 
-        # === Work Experience ===
-        if profile.work_experience:
-            has_valid = any(w.company for w in profile.work_experience)
-            if has_valid:
-                self._heading(doc, "EXPERIENCE")
+        # === Experience (경력 + 주요 프로젝트) ===
+        portfolio_map = {p.id: p for p in portfolios}
+        valid_entries = [e for e in tailored_resume.entries if portfolio_map.get(e.portfolio_id)]
+        has_work = profile.work_experience and any(w.company for w in profile.work_experience)
+
+        if has_work or valid_entries:
+            self._heading(doc, "EXPERIENCE")
+
+            # Work experience
+            if has_work:
                 for work in profile.work_experience:
                     if not work.company:
                         continue
@@ -214,30 +219,45 @@ class DocumentGenerator:
                         if proj.name:
                             self._bullet(doc, f"{proj.name}: {proj.description}")
 
-        # === Projects ===
-        portfolio_map = {p.id: p for p in portfolios}
-        valid_entries = [e for e in tailored_resume.entries if portfolio_map.get(e.portfolio_id)]
-        if valid_entries:
-            self._heading(doc, "PROJECTS")
-            for entry in valid_entries:
-                portfolio = portfolio_map[entry.portfolio_id]
-                self._sub_item(
-                    doc,
-                    portfolio.title,
-                    f"{portfolio.role} · {portfolio.period}",
-                )
-                p = doc.add_paragraph(entry.tailored_description)
-                p.paragraph_format.space_after = Pt(1)
-                for run in p.runs:
-                    run.font.size = Pt(9)
-                for ach in entry.tailored_achievements:
-                    self._bullet(doc, ach)
-                if portfolio.tech_stack:
-                    p = doc.add_paragraph(", ".join(portfolio.tech_stack))
-                    p.paragraph_format.space_after = Pt(6)
+            # 주요 프로젝트 (tailored portfolio entries)
+            if valid_entries:
+                p = doc.add_paragraph()
+                p.paragraph_format.space_before = Pt(8)
+                p.paragraph_format.space_after = Pt(4)
+                run = p.add_run("주요 프로젝트")
+                run.bold = True
+                run.font.size = Pt(11)
+                run.font.color.rgb = self.BLACK
+
+                for entry in valid_entries:
+                    portfolio = portfolio_map[entry.portfolio_id]
+                    self._sub_item(
+                        doc,
+                        portfolio.title,
+                        f"{portfolio.role} · {portfolio.period}",
+                    )
+                    p = doc.add_paragraph(entry.tailored_description)
+                    p.paragraph_format.space_after = Pt(1)
                     for run in p.runs:
-                        run.font.size = Pt(8)
-                        run.font.color.rgb = self.GRAY
+                        run.font.size = Pt(9)
+                    for ach in entry.tailored_achievements:
+                        self._bullet(doc, ach)
+                    if portfolio.tech_stack:
+                        p = doc.add_paragraph(f"기술 스택: {', '.join(portfolio.tech_stack)}")
+                        p.paragraph_format.space_after = Pt(6)
+                        for run in p.runs:
+                            run.font.size = Pt(8)
+                            run.font.color.rgb = self.GRAY
+
+        # === Skills ===
+        all_skills: set[str] = set()
+        for portfolio in portfolios:
+            all_skills.update(portfolio.tech_stack)
+        if all_skills:
+            self._heading(doc, "SKILLS")
+            p = doc.add_paragraph(", ".join(sorted(all_skills)))
+            for run in p.runs:
+                run.font.size = Pt(9)
 
         # === Education ===
         if profile.education:
@@ -262,7 +282,7 @@ class DocumentGenerator:
         if profile.certificates:
             has_valid = any(c.name for c in profile.certificates)
             if has_valid:
-                self._heading(doc, "CERTIFICATES")
+                self._heading(doc, "CERTIFICATIONS")
                 for cert in profile.certificates:
                     if not cert.name:
                         continue
@@ -282,15 +302,24 @@ class DocumentGenerator:
                         for run in p.runs:
                             run.font.size = Pt(9)
 
-        # === Skills ===
-        all_skills: set[str] = set()
-        for portfolio in portfolios:
-            all_skills.update(portfolio.tech_stack)
-        if all_skills:
-            self._heading(doc, "SKILLS")
-            p = doc.add_paragraph(", ".join(sorted(all_skills)))
-            for run in p.runs:
-                run.font.size = Pt(9)
+        # === Training ===
+        if profile.trainings:
+            has_valid = any(t.name for t in profile.trainings)
+            if has_valid:
+                self._heading(doc, "TRAINING")
+                for trn in profile.trainings:
+                    if not trn.name:
+                        continue
+                    period = ""
+                    if trn.start_date or trn.end_date:
+                        period = f"{trn.start_date} ~ {trn.end_date}"
+                    inst = f" / {trn.institution}" if trn.institution else ""
+                    self._sub_item(doc, trn.name, f"{period}{inst}")
+                    if trn.description:
+                        p = doc.add_paragraph(trn.description)
+                        p.paragraph_format.space_after = Pt(4)
+                        for run in p.runs:
+                            run.font.size = Pt(9)
 
         buffer = BytesIO()
         doc.save(buffer)
