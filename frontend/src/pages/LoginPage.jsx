@@ -192,213 +192,238 @@ export default function LoginPage() {
             <p className="text-gray-500 text-sm">AI 기반 취업 준비 플랫폼</p>
           </div>
 
-          <div className="hidden lg:block mb-10">
-            <h2 className="text-2xl font-bold text-gray-900 mb-1">
-              {isRegister ? '회원가입' : '로그인'}
-            </h2>
-            <p className="text-sm text-gray-500">
-              {isRegister ? '계정을 만들고 시작하세요' : '계정에 로그인하세요'}
-            </p>
-          </div>
-
-          <div className="lg:hidden mb-6">
-            <h2 className="text-lg font-bold text-gray-900">{isRegister ? '회원가입' : '로그인'}</h2>
-          </div>
-
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            {isRegister && (
-              <>
-                <div>
-                  <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">이름 *</label>
-                  <input type="text" value={regName} onChange={(e) => setRegName(e.target.value)}
-                    className={inputCls} placeholder="실명을 입력하세요" required />
-                </div>
-                <div>
-                  <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">이메일 *</label>
-                  <input type="email" value={regEmail} onChange={(e) => setRegEmail(e.target.value)}
-                    className={inputCls} placeholder="이메일을 입력하세요" required />
-                </div>
-              </>
-            )}
-
-            <div>
-              <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">아이디 {isRegister && '*'}</label>
-              <div className={isRegister ? 'flex gap-2' : ''}>
-                <input type="text" value={username}
-                  onChange={(e) => { setUsername(e.target.value); setUsernameChecked(false); }}
-                  className={`${inputCls} ${isRegister ? 'flex-1' : ''}`}
-                  placeholder="아이디를 입력하세요" required />
-                {isRegister && (
-                  <button type="button" onClick={checkUsername}
-                    className="px-3 py-2 text-xs font-semibold text-primary border border-primary rounded-xl hover:bg-primary/5 transition whitespace-nowrap shrink-0">
-                    중복확인
-                  </button>
-                )}
-              </div>
-              {isRegister && usernameChecked && (
-                <p className={`text-xs mt-1 ${usernameAvailable ? 'text-green-600' : 'text-red-500'}`}>
-                  {usernameAvailable ? '사용 가능한 아이디입니다.' : '이미 사용 중인 아이디입니다.'}
+          {/* Recovery screens (full page replacement) */}
+          {recoveryMode ? (
+            <>
+              <div className="hidden lg:block mb-10">
+                <h2 className="text-2xl font-bold text-gray-900 mb-1">
+                  {recoveryMode === 'find-id' ? '아이디 찾기' : '비밀번호 재설정'}
+                </h2>
+                <p className="text-sm text-gray-500">
+                  {recoveryMode === 'find-id' ? '가입 시 입력한 정보로 아이디를 찾습니다' : '본인 확인 후 새 비밀번호를 설정합니다'}
                 </p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">비밀번호 {isRegister && '*'}</label>
-              <div className="relative">
-                <input type={showPassword ? 'text' : 'password'} value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className={`${inputCls} pr-11 ${isRegister && pwTouched && !pwValid ? '!border-red-400 !ring-red-100' : ''}`}
-                  placeholder="비밀번호를 입력하세요" required />
-                <button type="button" onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 transition" tabIndex={-1}>
-                  {showPassword ? (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" /><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" /><line x1="1" y1="1" x2="23" y2="23" />
-                    </svg>
-                  ) : (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
-                    </svg>
-                  )}
-                </button>
               </div>
-              {isRegister && pwTouched && !pwValid && (
-                <p className="text-xs text-red-500 mt-1">영문과 숫자를 포함하여 8자 이상 입력해주세요.</p>
-              )}
-            </div>
-
-            {isRegister && (
-              <div>
-                <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">비밀번호 확인 *</label>
-                <input type="password" value={passwordConfirm}
-                  onChange={(e) => setPasswordConfirm(e.target.value)}
-                  className={`${inputCls} ${pwConfirmTouched && !pwMatch ? '!border-red-400 !ring-red-100' : ''}`}
-                  placeholder="비밀번호를 다시 입력하세요" required />
-                {pwConfirmTouched && !pwMatch && (
-                  <p className="text-xs text-red-500 mt-1">비밀번호가 일치하지 않습니다.</p>
-                )}
+              <div className="lg:hidden mb-6">
+                <h2 className="text-lg font-bold text-gray-900">
+                  {recoveryMode === 'find-id' ? '아이디 찾기' : '비밀번호 재설정'}
+                </h2>
               </div>
-            )}
 
-            {error && (
-              <div className="flex items-center gap-2 px-4 py-3 bg-red-50 border border-red-100 rounded-xl animate-fade-in">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>
-                <p className="text-sm text-red-600">{error}</p>
-              </div>
-            )}
-
-            <button type="submit" disabled={loading}
-              className="w-full py-3.5 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition disabled:opacity-50 text-[15px]">
-              {loading ? '처리 중...' : isRegister ? '가입하기' : '로그인'}
-            </button>
-          </form>
-
-          {/* Social Login */}
-          {!isRegister && hasSocial && (
-            <div className="mt-5">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="flex-1 h-px bg-gray-200" />
-                <span className="text-xs text-gray-400">또는</span>
-                <div className="flex-1 h-px bg-gray-200" />
-              </div>
-              <div className="flex flex-col gap-2.5">
-                {hasKakao && (
-                  <button onClick={handleKakaoLogin}
-                    className="w-full py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition hover:brightness-95"
-                    style={{ backgroundColor: '#FEE500', color: '#191919' }}>
-                    <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#191919" d="M12 3C6.48 3 2 6.36 2 10.44c0 2.62 1.75 4.93 4.38 6.24l-1.12 4.16c-.1.36.32.65.64.44l4.84-3.2c.41.04.83.06 1.26.06 5.52 0 10-3.36 10-7.5S17.52 3 12 3z"/></svg>
-                    카카오로 로그인
-                  </button>
-                )}
-                {hasNaver && (
-                  <button onClick={handleNaverLogin}
-                    className="w-full py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 text-white transition hover:brightness-95"
-                    style={{ backgroundColor: '#03C75A' }}>
-                    <svg width="18" height="18" viewBox="0 0 24 24"><path fill="white" d="M14.4 12.6L9.38 5H5v14h4.6v-7.6L14.62 19H19V5h-4.6v7.6z"/></svg>
-                    네이버로 로그인
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-
-          <div className="mt-5 text-center space-y-2">
-            <button
-              onClick={() => { setIsRegister(!isRegister); setError(''); setRecoveryMode(null); setUsernameChecked(false); }}
-              className="text-[13px] text-gray-500 hover:text-primary transition">
-              {isRegister ? '이미 계정이 있으신가요? 로그인' : '계정이 없으신가요? 회원가입'}
-            </button>
-            {!isRegister && !recoveryMode && (
-              <div className="flex justify-center gap-3">
-                <button onClick={() => { setRecoveryMode('find-id'); setRecoveryResult(''); }} className="text-[12px] text-gray-400 hover:text-gray-600 transition">아이디 찾기</button>
-                <span className="text-gray-300">|</span>
-                <button onClick={() => { setRecoveryMode('reset-pw'); setRecoveryResult(''); }} className="text-[12px] text-gray-400 hover:text-gray-600 transition">비밀번호 찾기</button>
-              </div>
-            )}
-          </div>
-
-          {/* Recovery forms */}
-          {recoveryMode && (
-            <div className="mt-5 p-4 bg-gray-50 rounded-xl border border-gray-200 animate-fade-in">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-bold text-gray-800">{recoveryMode === 'find-id' ? '아이디 찾기' : '비밀번호 재설정'}</h3>
-                <button onClick={() => { setRecoveryMode(null); setRecoveryResult(''); }} className="text-xs text-gray-400 hover:text-gray-600">닫기</button>
-              </div>
               {recoveryMode === 'find-id' ? (
-                <form onSubmit={handleFindUsername} className="flex flex-col gap-3">
+                <form onSubmit={handleFindUsername} className="flex flex-col gap-4">
                   <div>
-                    <label className="block text-[12px] font-semibold text-gray-600 mb-1">이름</label>
+                    <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">이름</label>
                     <input value={recoveryName} onChange={(e) => setRecoveryName(e.target.value)}
-                      className={smallInputCls} placeholder="가입 시 입력한 이름" required />
+                      className={inputCls} placeholder="가입 시 입력한 이름" required />
                   </div>
                   <div>
-                    <label className="block text-[12px] font-semibold text-gray-600 mb-1">이메일</label>
+                    <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">이메일</label>
                     <input type="email" value={recoveryEmail} onChange={(e) => setRecoveryEmail(e.target.value)}
-                      className={smallInputCls} placeholder="가입 시 입력한 이메일" required />
+                      className={inputCls} placeholder="가입 시 입력한 이메일" required />
                   </div>
+                  {recoveryResult && (
+                    <div className={`flex items-center gap-2 px-4 py-3 rounded-xl animate-fade-in ${recoveryResult.startsWith('아이디:') ? 'bg-green-50 border border-green-100' : 'bg-red-50 border border-red-100'}`}>
+                      <p className={`text-sm ${recoveryResult.startsWith('아이디:') ? 'text-green-700 font-semibold' : 'text-red-600'}`}>{recoveryResult}</p>
+                    </div>
+                  )}
                   <button type="submit" disabled={recoveryLoading}
-                    className="w-full py-2 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary-dark transition disabled:opacity-50">
+                    className="w-full py-3.5 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition disabled:opacity-50 text-[15px]">
                     {recoveryLoading ? '찾는 중...' : '아이디 찾기'}
                   </button>
                 </form>
               ) : (
-                <form onSubmit={handleResetPassword} className="flex flex-col gap-3">
+                <form onSubmit={handleResetPassword} className="flex flex-col gap-4">
                   <div>
-                    <label className="block text-[12px] font-semibold text-gray-600 mb-1">아이디</label>
+                    <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">아이디</label>
                     <input value={recoveryUsername} onChange={(e) => setRecoveryUsername(e.target.value)}
-                      className={smallInputCls} placeholder="아이디를 입력하세요" required />
+                      className={inputCls} placeholder="아이디를 입력하세요" required />
                   </div>
                   <div>
-                    <label className="block text-[12px] font-semibold text-gray-600 mb-1">이름</label>
+                    <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">이름</label>
                     <input value={recoveryName} onChange={(e) => setRecoveryName(e.target.value)}
-                      className={smallInputCls} placeholder="가입 시 입력한 이름" required />
+                      className={inputCls} placeholder="가입 시 입력한 이름" required />
                   </div>
                   <div>
-                    <label className="block text-[12px] font-semibold text-gray-600 mb-1">이메일</label>
+                    <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">이메일</label>
                     <input type="email" value={recoveryEmail} onChange={(e) => setRecoveryEmail(e.target.value)}
-                      className={smallInputCls} placeholder="가입 시 입력한 이메일" required />
+                      className={inputCls} placeholder="가입 시 입력한 이메일" required />
                   </div>
                   <div>
-                    <label className="block text-[12px] font-semibold text-gray-600 mb-1">새 비밀번호</label>
+                    <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">새 비밀번호</label>
                     <input type="password" value={recoveryNewPw} onChange={(e) => setRecoveryNewPw(e.target.value)}
-                      className={`${smallInputCls} ${recoveryNewPw.length > 0 && !/^(?=.*[a-zA-Z])(?=.*\d).{8,}$/.test(recoveryNewPw) ? '!border-red-400 !ring-red-100' : ''}`}
+                      className={`${inputCls} ${recoveryNewPw.length > 0 && !/^(?=.*[a-zA-Z])(?=.*\d).{8,}$/.test(recoveryNewPw) ? '!border-red-400 !ring-red-100' : ''}`}
                       placeholder="영문+숫자 포함 8자 이상" required />
                     {recoveryNewPw.length > 0 && !/^(?=.*[a-zA-Z])(?=.*\d).{8,}$/.test(recoveryNewPw) && (
                       <p className="text-xs text-red-500 mt-1">영문과 숫자를 포함하여 8자 이상 입력해주세요.</p>
                     )}
                   </div>
+                  {recoveryResult && (
+                    <div className={`flex items-center gap-2 px-4 py-3 rounded-xl animate-fade-in ${recoveryResult.includes('재설정되었습니다') ? 'bg-green-50 border border-green-100' : 'bg-red-50 border border-red-100'}`}>
+                      <p className={`text-sm ${recoveryResult.includes('재설정되었습니다') ? 'text-green-700' : 'text-red-600'}`}>{recoveryResult}</p>
+                    </div>
+                  )}
                   <button type="submit" disabled={recoveryLoading}
-                    className="w-full py-2 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary-dark transition disabled:opacity-50">
+                    className="w-full py-3.5 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition disabled:opacity-50 text-[15px]">
                     {recoveryLoading ? '처리 중...' : '비밀번호 재설정'}
                   </button>
                 </form>
               )}
-              {recoveryResult && (
-                <div className="mt-3 px-3 py-2 bg-white border border-gray-200 rounded-lg">
-                  <p className="text-sm text-gray-700">{recoveryResult}</p>
+
+              <div className="mt-5 text-center">
+                <button
+                  onClick={() => { setRecoveryMode(null); setRecoveryResult(''); setRecoveryName(''); setRecoveryEmail(''); setRecoveryUsername(''); setRecoveryNewPw(''); }}
+                  className="text-[13px] text-gray-500 hover:text-primary transition">
+                  로그인으로 돌아가기
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="hidden lg:block mb-10">
+                <h2 className="text-2xl font-bold text-gray-900 mb-1">
+                  {isRegister ? '회원가입' : '로그인'}
+                </h2>
+                <p className="text-sm text-gray-500">
+                  {isRegister ? '계정을 만들고 시작하세요' : '계정에 로그인하세요'}
+                </p>
+              </div>
+
+              <div className="lg:hidden mb-6">
+                <h2 className="text-lg font-bold text-gray-900">{isRegister ? '회원가입' : '로그인'}</h2>
+              </div>
+
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                {isRegister && (
+                  <>
+                    <div>
+                      <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">이름 *</label>
+                      <input type="text" value={regName} onChange={(e) => setRegName(e.target.value)}
+                        className={inputCls} placeholder="실명을 입력하세요" required />
+                    </div>
+                    <div>
+                      <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">이메일 *</label>
+                      <input type="email" value={regEmail} onChange={(e) => setRegEmail(e.target.value)}
+                        className={inputCls} placeholder="이메일을 입력하세요" required />
+                    </div>
+                  </>
+                )}
+
+                <div>
+                  <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">아이디 {isRegister && '*'}</label>
+                  <div className={isRegister ? 'flex gap-2' : ''}>
+                    <input type="text" value={username}
+                      onChange={(e) => { setUsername(e.target.value); setUsernameChecked(false); }}
+                      className={`${inputCls} ${isRegister ? 'flex-1' : ''}`}
+                      placeholder="아이디를 입력하세요" required />
+                    {isRegister && (
+                      <button type="button" onClick={checkUsername}
+                        className="px-3 py-2 text-xs font-semibold text-primary border border-primary rounded-xl hover:bg-primary/5 transition whitespace-nowrap shrink-0">
+                        중복확인
+                      </button>
+                    )}
+                  </div>
+                  {isRegister && usernameChecked && (
+                    <p className={`text-xs mt-1 ${usernameAvailable ? 'text-green-600' : 'text-red-500'}`}>
+                      {usernameAvailable ? '사용 가능한 아이디입니다.' : '이미 사용 중인 아이디입니다.'}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">비밀번호 {isRegister && '*'}</label>
+                  <div className="relative">
+                    <input type={showPassword ? 'text' : 'password'} value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className={`${inputCls} pr-11 ${isRegister && pwTouched && !pwValid ? '!border-red-400 !ring-red-100' : ''}`}
+                      placeholder="비밀번호를 입력하세요" required />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 transition" tabIndex={-1}>
+                      {showPassword ? (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" /><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" /><line x1="1" y1="1" x2="23" y2="23" />
+                        </svg>
+                      ) : (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                  {isRegister && pwTouched && !pwValid && (
+                    <p className="text-xs text-red-500 mt-1">영문과 숫자를 포함하여 8자 이상 입력해주세요.</p>
+                  )}
+                </div>
+
+                {isRegister && (
+                  <div>
+                    <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">비밀번호 확인 *</label>
+                    <input type="password" value={passwordConfirm}
+                      onChange={(e) => setPasswordConfirm(e.target.value)}
+                      className={`${inputCls} ${pwConfirmTouched && !pwMatch ? '!border-red-400 !ring-red-100' : ''}`}
+                      placeholder="비밀번호를 다시 입력하세요" required />
+                    {pwConfirmTouched && !pwMatch && (
+                      <p className="text-xs text-red-500 mt-1">비밀번호가 일치하지 않습니다.</p>
+                    )}
+                  </div>
+                )}
+
+                {error && (
+                  <div className="flex items-center gap-2 px-4 py-3 bg-red-50 border border-red-100 rounded-xl animate-fade-in">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>
+                    <p className="text-sm text-red-600">{error}</p>
+                  </div>
+                )}
+
+                <button type="submit" disabled={loading}
+                  className="w-full py-3.5 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition disabled:opacity-50 text-[15px]">
+                  {loading ? '처리 중...' : isRegister ? '가입하기' : '로그인'}
+                </button>
+              </form>
+
+              {/* Social Login */}
+              {!isRegister && hasSocial && (
+                <div className="mt-5">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex-1 h-px bg-gray-200" />
+                    <span className="text-xs text-gray-400">또는</span>
+                    <div className="flex-1 h-px bg-gray-200" />
+                  </div>
+                  <div className="flex flex-col gap-2.5">
+                    {hasKakao && (
+                      <button onClick={handleKakaoLogin}
+                        className="w-full py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition hover:brightness-95"
+                        style={{ backgroundColor: '#FEE500', color: '#191919' }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#191919" d="M12 3C6.48 3 2 6.36 2 10.44c0 2.62 1.75 4.93 4.38 6.24l-1.12 4.16c-.1.36.32.65.64.44l4.84-3.2c.41.04.83.06 1.26.06 5.52 0 10-3.36 10-7.5S17.52 3 12 3z"/></svg>
+                        카카오로 로그인
+                      </button>
+                    )}
+                    {hasNaver && (
+                      <button onClick={handleNaverLogin}
+                        className="w-full py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 text-white transition hover:brightness-95"
+                        style={{ backgroundColor: '#03C75A' }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="white" d="M14.4 12.6L9.38 5H5v14h4.6v-7.6L14.62 19H19V5h-4.6v7.6z"/></svg>
+                        네이버로 로그인
+                      </button>
+                    )}
+                  </div>
                 </div>
               )}
-            </div>
+
+              <div className="mt-5 text-center space-y-2">
+                <button
+                  onClick={() => { setIsRegister(!isRegister); setError(''); setUsernameChecked(false); }}
+                  className="text-[13px] text-gray-500 hover:text-primary transition">
+                  {isRegister ? '이미 계정이 있으신가요? 로그인' : '계정이 없으신가요? 회원가입'}
+                </button>
+                {!isRegister && (
+                  <div className="flex justify-center gap-3">
+                    <button onClick={() => { setRecoveryMode('find-id'); setRecoveryResult(''); }} className="text-[12px] text-gray-400 hover:text-gray-600 transition">아이디 찾기</button>
+                    <span className="text-gray-300">|</span>
+                    <button onClick={() => { setRecoveryMode('reset-pw'); setRecoveryResult(''); }} className="text-[12px] text-gray-400 hover:text-gray-600 transition">비밀번호 찾기</button>
+                  </div>
+                )}
+              </div>
+            </>
           )}
         </div>
       </div>

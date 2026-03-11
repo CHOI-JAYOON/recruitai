@@ -372,11 +372,19 @@ export default function MyPage() {
     if (!updated.linkedin && data.linkedin) updated.linkedin = data.linkedin;
     if (!updated.blog && data.blog) updated.blog = data.blog;
     if (!updated.summary && data.summary) updated.summary = data.summary;
-    if ((!updated.education || updated.education.length === 0) && data.education?.length > 0) updated.education = data.education;
-    if ((!updated.work_experience || updated.work_experience.length === 0) && data.work_experience?.length > 0) updated.work_experience = data.work_experience;
-    if ((!updated.certificates || updated.certificates.length === 0) && data.certificates?.length > 0) updated.certificates = data.certificates;
-    if ((!updated.awards || updated.awards.length === 0) && data.awards?.length > 0) updated.awards = data.awards;
-    if ((!updated.trainings || updated.trainings.length === 0) && data.trainings?.length > 0) updated.trainings = data.trainings;
+    // 배열 필드: 기존 항목 유지 + 새 항목 추가 (중복 제거)
+    const mergeArr = (existArr, newArr, key) => {
+      if (!newArr?.length) return existArr || [];
+      const prev = existArr || [];
+      const existKeys = new Set(prev.map(i => JSON.stringify(i[key] || i)));
+      const added = newArr.filter(i => !existKeys.has(JSON.stringify(i[key] || i)));
+      return [...prev, ...added];
+    };
+    if (data.education?.length > 0) updated.education = mergeArr(updated.education, data.education, 'school');
+    if (data.work_experience?.length > 0) updated.work_experience = mergeArr(updated.work_experience, data.work_experience, 'company');
+    if (data.certificates?.length > 0) updated.certificates = mergeArr(updated.certificates, data.certificates, 'name');
+    if (data.awards?.length > 0) updated.awards = mergeArr(updated.awards, data.awards, 'name');
+    if (data.trainings?.length > 0) updated.trainings = mergeArr(updated.trainings, data.trainings, 'name');
     setProfile(updated);
     setEditing(true);
     toast.success('이력서 분석이 완료되었습니다. 확인 후 저장해주세요.');

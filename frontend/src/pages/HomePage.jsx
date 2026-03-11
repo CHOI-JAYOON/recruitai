@@ -228,25 +228,31 @@ export default function HomePage() {
     if (!data) return;
     let count = 0;
     const fmtDate = (d) => d ? d.slice(0, 7).replace('-', '.') : '';
-    // 포트폴리오 항목 저장
+    // 기존 포트폴리오 목록 가져와서 중복 체크용 제목 Set 생성
+    const existingTitles = new Set(portfolios.map(p => p.title));
+    // 포트폴리오 항목 저장 (중복 제목 스킵)
     if (data.portfolios?.length > 0) {
       for (const p of data.portfolios) {
+        if (existingTitles.has(p.title)) continue;
         try {
           await api.post('/portfolios', { ...p, username: user.username });
           count++;
+          existingTitles.add(p.title);
         } catch { /* skip */ }
       }
     }
-    // work_experience → 경력 카드로 홈에도 추가
+    // work_experience → 경력 카드로 홈에도 추가 (중복 제목 스킵)
     if (data.work_experience?.length > 0) {
       for (const we of data.work_experience) {
+        const title = `${we.company}${we.team ? ' ' + we.team : ''}`;
+        if (existingTitles.has(title)) continue;
         try {
           const start = fmtDate(we.start_date);
           const end = we.is_current ? '현재' : fmtDate(we.end_date);
           const period = start && end ? `${start} - ${end}` : start || end || '';
           await api.post('/portfolios', {
             username: user.username,
-            title: `${we.company}${we.team ? ' ' + we.team : ''}`,
+            title,
             company: we.company || '',
             type: 'career',
             category: '정규직',
@@ -259,10 +265,11 @@ export default function HomePage() {
             team_size: '',
           });
           count++;
+          existingTitles.add(title);
         } catch { /* skip */ }
       }
     }
-    // 프로필 정보 업데이트 (빈 필드만)
+    // 프로필 정보 업데이트 (빈 필드는 채우고, 배열 필드는 기존 항목에 새 항목 추가)
     try {
       const profileRes = await api.get(`/profile/${user.username}`);
       const existing = profileRes.data || {};
@@ -274,11 +281,19 @@ export default function HomePage() {
       if (!updated.linkedin && data.linkedin) updated.linkedin = data.linkedin;
       if (!updated.blog && data.blog) updated.blog = data.blog;
       if (!updated.summary && data.summary) updated.summary = data.summary;
-      if ((!updated.education || updated.education.length === 0) && data.education?.length > 0) updated.education = data.education;
-      if ((!updated.work_experience || updated.work_experience.length === 0) && data.work_experience?.length > 0) updated.work_experience = data.work_experience;
-      if ((!updated.certificates || updated.certificates.length === 0) && data.certificates?.length > 0) updated.certificates = data.certificates;
-      if ((!updated.awards || updated.awards.length === 0) && data.awards?.length > 0) updated.awards = data.awards;
-      if ((!updated.trainings || updated.trainings.length === 0) && data.trainings?.length > 0) updated.trainings = data.trainings;
+      // 배열 필드: 기존 항목 유지 + 새 항목 추가 (중복 제거)
+      const mergeArr = (existArr, newArr, key) => {
+        if (!newArr?.length) return existArr || [];
+        const prev = existArr || [];
+        const existKeys = new Set(prev.map(i => JSON.stringify(i[key] || i)));
+        const added = newArr.filter(i => !existKeys.has(JSON.stringify(i[key] || i)));
+        return [...prev, ...added];
+      };
+      if (data.education?.length > 0) updated.education = mergeArr(updated.education, data.education, 'school');
+      if (data.work_experience?.length > 0) updated.work_experience = mergeArr(updated.work_experience, data.work_experience, 'company');
+      if (data.certificates?.length > 0) updated.certificates = mergeArr(updated.certificates, data.certificates, 'name');
+      if (data.awards?.length > 0) updated.awards = mergeArr(updated.awards, data.awards, 'name');
+      if (data.trainings?.length > 0) updated.trainings = mergeArr(updated.trainings, data.trainings, 'name');
       await api.put(`/profile/${user.username}`, updated);
     } catch { /* skip */ }
     await loadData();
