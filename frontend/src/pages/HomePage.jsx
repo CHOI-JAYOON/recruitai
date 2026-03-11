@@ -389,25 +389,23 @@ export default function HomePage() {
           </button>
         </div>
 
-        {mode === 'add' && (
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-5 mb-5">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#3182f6] to-[#6366f1] flex items-center justify-center">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
-              </div>
-              <h3 className="text-sm font-bold text-gray-900">AI 자동 파싱</h3>
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-5 mb-5">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#3182f6] to-[#6366f1] flex items-center justify-center">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
             </div>
-            <p className="text-xs text-gray-500 mb-3 ml-9">프로젝트 설명을 자유롭게 입력하면 AI가 구조화합니다.</p>
-            <textarea value={parseText} onChange={(e) => setParseText(e.target.value)} rows={5}
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white resize-none transition"
-              placeholder="예: 팀 프로젝트로 React와 FastAPI를 사용한 AI 챗봇 서비스를 개발했습니다..." />
-            {parsing && <LoadingSpinner text="AI가 분석하고 있습니다..." />}
-            <button onClick={handleParse} disabled={parsing || !parseText.trim()}
-              className="mt-3 px-5 py-2.5 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary-dark transition disabled:opacity-50">
-              {parsing ? 'AI 분석 중...' : 'AI 파싱'}
-            </button>
+            <h3 className="text-sm font-bold text-gray-900">AI 자동 파싱</h3>
           </div>
-        )}
+          <p className="text-xs text-gray-500 mb-3 ml-9">프로젝트 설명을 자유롭게 입력하면 AI가 구조화합니다.</p>
+          <textarea value={parseText} onChange={(e) => setParseText(e.target.value)} rows={5}
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white resize-none transition"
+            placeholder="예: 팀 프로젝트로 React와 FastAPI를 사용한 AI 챗봇 서비스를 개발했습니다..." />
+          {parsing && <LoadingSpinner text="AI가 분석하고 있습니다..." />}
+          <button onClick={handleParse} disabled={parsing || !parseText.trim()}
+            className="mt-3 px-5 py-2.5 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary-dark transition disabled:opacity-50">
+            {parsing ? 'AI 분석 중...' : 'AI 파싱'}
+          </button>
+        </div>
 
         {editData && (
           <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-5 flex flex-col gap-4">
