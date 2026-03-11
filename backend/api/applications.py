@@ -1,13 +1,13 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from pydantic import BaseModel
 from services.application_storage import ApplicationStorage
+from services.jwt_service import get_current_user
 
 router = APIRouter()
 storage = ApplicationStorage()
 
 
 class ApplicationCreate(BaseModel):
-    username: str
     company: str
     position: str
     status: str = "지원예정"
@@ -19,7 +19,6 @@ class ApplicationCreate(BaseModel):
 
 
 class ApplicationUpdate(BaseModel):
-    username: str
     company: str | None = None
     position: str | None = None
     status: str | None = None
@@ -31,27 +30,27 @@ class ApplicationUpdate(BaseModel):
 
 
 @router.get("")
-def list_applications(username: str = Query(...)):
-    return storage.load(username)
+def list_applications(current_user: dict = Depends(get_current_user)):
+    return storage.load(current_user["username"])
 
 
 @router.post("")
-def create_application(req: ApplicationCreate):
-    record = req.model_dump(exclude={"username"})
-    return storage.save(req.username, record)
+def create_application(req: ApplicationCreate, current_user: dict = Depends(get_current_user)):
+    record = req.model_dump()
+    return storage.save(current_user["username"], record)
 
 
 @router.put("/{app_id}")
-def update_application(app_id: str, req: ApplicationUpdate):
-    updates = req.model_dump(exclude={"username"}, exclude_none=True)
-    result = storage.update(req.username, app_id, updates)
+def update_application(app_id: str, req: ApplicationUpdate, current_user: dict = Depends(get_current_user)):
+    updates = req.model_dump(exclude_none=True)
+    result = storage.update(current_user["username"], app_id, updates)
     if not result:
         raise HTTPException(404, "기록을 찾을 수 없습니다.")
     return result
 
 
 @router.delete("/{app_id}")
-def delete_application(app_id: str, username: str = Query(...)):
-    if not storage.delete(username, app_id):
+def delete_application(app_id: str, current_user: dict = Depends(get_current_user)):
+    if not storage.delete(current_user["username"], app_id):
         raise HTTPException(404, "기록을 찾을 수 없습니다.")
     return {"ok": True}

@@ -83,30 +83,6 @@ export default function CareerDescPage() {
         <h1 className="text-xl font-bold text-gray-900">경력기술서 생성</h1>
       </div>
 
-      {/* Step Indicator */}
-      <div className="flex items-center gap-2 mb-8">
-        {steps.map((s, i) => (
-          <div key={s.num} className="flex items-center gap-2 flex-1">
-            <button
-              onClick={() => { if (s.num < step || s.num === 1) setStep(s.num); }}
-              className={`flex items-center gap-2 transition ${s.num <= step ? 'cursor-pointer' : 'cursor-default'}`}
-            >
-              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition ${
-                s.num === step ? 'bg-primary text-white' :
-                s.num < step ? 'bg-primary/20 text-primary' :
-                'bg-gray-200 text-gray-400'
-              }`}>{s.num}</div>
-              <span className={`text-[13px] font-semibold whitespace-nowrap ${
-                s.num === step ? 'text-gray-900' : s.num < step ? 'text-primary' : 'text-gray-400'
-              }`}>{s.label}</span>
-            </button>
-            {i < steps.length - 1 && (
-              <div className={`flex-1 h-[2px] rounded-full transition ${s.num < step ? 'bg-primary/30' : 'bg-gray-200'}`} />
-            )}
-          </div>
-        ))}
-      </div>
-
       {/* Step 1: Target Role + Career Selection (combined) */}
       {step === 1 && (() => {
         const companyOrder = [];

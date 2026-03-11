@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import api from '../api/client';
@@ -31,10 +32,11 @@ const emptyTraining = { name: '', institution: '', start_date: '', end_date: '',
 export default function MyPage() {
   const { user, updateUser } = useAuth();
   const toast = useToast();
+  const [searchParams] = useSearchParams();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'profile');
   const [editing, setEditing] = useState(false);
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('apiKey') || '');
   const [coverLetters, setCoverLetters] = useState([]);
@@ -1579,7 +1581,7 @@ export default function MyPage() {
         if (!displayName.trim()) { toast.error('닉네임을 입력해주세요.'); return; }
         setAccountSaving(true);
         try {
-          await api.put('/auth/display-name', { username: user.username, display_name: displayName.trim() });
+          await api.put('/auth/display-name', { display_name: displayName.trim() });
           updateUser({ display_name: displayName.trim() });
           toast.success('닉네임이 변경되었습니다.');
         } catch (err) {
@@ -1588,11 +1590,11 @@ export default function MyPage() {
       };
       const changePassword = async () => {
         if (!currentPassword) { toast.error('현재 비밀번호를 입력해주세요.'); return; }
-        if (newPassword.length < 4) { toast.error('새 비밀번호는 4자 이상이어야 합니다.'); return; }
+        if (newPassword.length < 8 || !/[a-zA-Z]/.test(newPassword) || !/\d/.test(newPassword)) { toast.error('비밀번호는 영문+숫자 포함 8자 이상이어야 합니다.'); return; }
         if (newPassword !== confirmPassword) { toast.error('새 비밀번호가 일치하지 않습니다.'); return; }
         setAccountSaving(true);
         try {
-          await api.put('/auth/change-password', { username: user.username, current_password: currentPassword, new_password: newPassword });
+          await api.put('/auth/change-password', { current_password: currentPassword, new_password: newPassword });
           toast.success('비밀번호가 변경되었습니다.');
           setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
         } catch (err) {

@@ -13,6 +13,13 @@ export default function OAuthCallbackPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    // Validate provider against whitelist
+    const VALID_PROVIDERS = ['kakao', 'naver'];
+    if (!VALID_PROVIDERS.includes(provider)) {
+      navigate('/login', { replace: true });
+      return;
+    }
+
     const code = searchParams.get('code');
     const state = searchParams.get('state');
 

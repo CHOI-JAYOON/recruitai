@@ -240,7 +240,7 @@ export default function InterviewPage() {
             대표 이력서: {primaryResume.target_role}
           </div>
         ) : (
-          <button onClick={() => navigate('/resume')}
+          <button onClick={() => navigate('/mypage?tab=resume')}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold bg-amber-50 border-amber-200 text-amber-600 hover:bg-amber-100 transition cursor-pointer">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             대표 이력서 미설정
@@ -253,7 +253,7 @@ export default function InterviewPage() {
             대표 경력기술서: {primaryCareerDesc.target_role}
           </div>
         ) : (
-          <button onClick={() => navigate('/career-description')}
+          <button onClick={() => navigate('/mypage?tab=resume')}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold bg-amber-50 border-amber-200 text-amber-600 hover:bg-amber-100 transition cursor-pointer">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             {careerDescCount > 0 ? '대표 경력기술서 미설정' : '경력기술서 없음'}

@@ -1,7 +1,10 @@
 import httpx
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException, Depends, Request
+from pydantic import BaseModel, Field
 from services.auth import AuthService
+from services.jwt_service import create_token, get_current_user
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from config.settings import (
     KAKAO_CLIENT_ID, KAKAO_REDIRECT_URI,
     NAVER_CLIENT_ID, NAVER_CLIENT_SECRET, NAVER_REDIRECT_URI,
@@ -9,66 +12,73 @@ from config.settings import (
 
 router = APIRouter()
 auth_service = AuthService()
+limiter = Limiter(key_func=get_remote_address)
 
 
 class LoginRequest(BaseModel):
-    username: str
-    password: str
+    username: str = Field(max_length=30)
+    password: str = Field(max_length=128)
 
 
 class RegisterRequest(BaseModel):
-    username: str
-    password: str
-    display_name: str
-    email: str = ""
+    username: str = Field(max_length=30)
+    password: str = Field(max_length=128)
+    display_name: str = Field(max_length=50)
+    email: str = Field(default="", max_length=254)
 
 
 @router.post("/login")
-def login(req: LoginRequest):
+@limiter.limit("10/minute")
+def login(request: Request, req: LoginRequest):
     user = auth_service.login(req.username, req.password)
     if not user:
         raise HTTPException(status_code=401, detail="아이디 또는 비밀번호가 올바르지 않습니다.")
-    return user
+    token = create_token(user["username"], user["display_name"], user.get("email", ""), user.get("provider", "local"))
+    return {**user, "token": token}
 
 
 @router.post("/register")
-def register(req: RegisterRequest):
+@limiter.limit("5/minute")
+def register(request: Request, req: RegisterRequest):
     import re
+    if len(req.username) > 30 or not re.match(r'^[a-zA-Z0-9_]+$', req.username):
+        raise HTTPException(status_code=400, detail="아이디는 영문, 숫자, 밑줄만 사용 가능합니다 (최대 30자).")
     if len(req.password) < 8 or not re.search(r'[a-zA-Z]', req.password) or not re.search(r'\d', req.password):
         raise HTTPException(status_code=400, detail="비밀번호는 영문+숫자 포함 8자 이상이어야 합니다.")
+    if len(req.display_name) > 50:
+        raise HTTPException(status_code=400, detail="닉네임은 50자 이하여야 합니다.")
     success = auth_service.register(req.username, req.password, req.display_name, req.email)
     if not success:
         raise HTTPException(status_code=409, detail="이미 존재하는 아이디입니다.")
-    return {"message": "회원가입 완료"}
+    token = create_token(req.username, req.display_name, req.email)
+    return {"message": "회원가입 완료", "token": token, "username": req.username, "display_name": req.display_name, "email": req.email}
 
 
 class ChangePasswordRequest(BaseModel):
-    username: str
     current_password: str
-    new_password: str
+    new_password: str = Field(min_length=8, max_length=128)
 
 
 class UpdateDisplayNameRequest(BaseModel):
-    username: str
-    display_name: str
+    display_name: str = Field(min_length=1, max_length=50)
 
 
 @router.put("/change-password")
-def change_password(req: ChangePasswordRequest):
+def change_password(req: ChangePasswordRequest, current_user: dict = Depends(get_current_user)):
     import re
     if len(req.new_password) < 8 or not re.search(r'[a-zA-Z]', req.new_password) or not re.search(r'\d', req.new_password):
         raise HTTPException(status_code=400, detail="비밀번호는 영문+숫자 포함 8자 이상이어야 합니다.")
-    success = auth_service.change_password(req.username, req.current_password, req.new_password)
+    success = auth_service.change_password(current_user["username"], req.current_password, req.new_password)
     if not success:
         raise HTTPException(status_code=401, detail="현재 비밀번호가 올바르지 않습니다.")
     return {"message": "비밀번호가 변경되었습니다."}
 
 
 @router.put("/display-name")
-def update_display_name(req: UpdateDisplayNameRequest):
+def update_display_name(req: UpdateDisplayNameRequest, current_user: dict = Depends(get_current_user)):
     if not req.display_name.strip():
         raise HTTPException(status_code=400, detail="닉네임을 입력해주세요.")
-    result = auth_service.update_display_name(req.username, req.display_name.strip())
+    result = auth_service.update_display_name(current_user["username"], req.display_name.strip())
     if not result:
         raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
     return result
@@ -91,13 +101,15 @@ class CheckUsernameRequest(BaseModel):
 
 
 @router.post("/check-username")
-def check_username(req: CheckUsernameRequest):
+@limiter.limit("20/minute")
+def check_username(request: Request, req: CheckUsernameRequest):
     exists = auth_service.user_exists(req.username)
     return {"exists": exists}
 
 
 @router.post("/find-username")
-def find_username(req: FindUsernameRequest):
+@limiter.limit("5/minute")
+def find_username(request: Request, req: FindUsernameRequest):
     result = auth_service.find_by_name_and_email(req.display_name, req.email)
     if not result:
         raise HTTPException(status_code=404, detail="이름과 이메일이 일치하는 계정을 찾을 수 없습니다.")
@@ -105,7 +117,8 @@ def find_username(req: FindUsernameRequest):
 
 
 @router.post("/reset-password")
-def reset_password(req: ResetPasswordRequest):
+@limiter.limit("3/minute")
+def reset_password(request: Request, req: ResetPasswordRequest):
     import re
     if len(req.new_password) < 8 or not re.search(r'[a-zA-Z]', req.new_password) or not re.search(r'\d', req.new_password):
         raise HTTPException(status_code=400, detail="비밀번호는 영문+숫자 포함 8자 이상이어야 합니다.")
@@ -163,7 +176,8 @@ async def oauth_kakao(req: OAuthKakaoRequest):
     nickname = kakao_account.get("profile", {}).get("nickname", f"kakao_{provider_id}")
 
     user = auth_service.find_or_create_oauth_user("kakao", provider_id, email, nickname)
-    return user
+    token = create_token(user["username"], user["display_name"], user.get("email", ""), "kakao")
+    return {**user, "token": token}
 
 
 class OAuthNaverRequest(BaseModel):
@@ -203,4 +217,5 @@ async def oauth_naver(req: OAuthNaverRequest):
     name = naver_data.get("name", naver_data.get("nickname", f"naver_{provider_id}"))
 
     user = auth_service.find_or_create_oauth_user("naver", provider_id, email, name)
-    return user
+    token = create_token(user["username"], user["display_name"], user.get("email", ""), "naver")
+    return {**user, "token": token}

@@ -5,12 +5,26 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('user');
-    return saved ? JSON.parse(saved) : null;
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        return null;
+      }
+    }
+    return null;
   });
 
   const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+    // Extract and store JWT token separately
+    const { token, ...userInfo } = userData;
+    if (token) {
+      localStorage.setItem('token', token);
+    }
+    setUser(userInfo);
+    localStorage.setItem('user', JSON.stringify(userInfo));
   };
 
   const updateUser = (updates) => {
@@ -24,6 +38,7 @@ export function AuthProvider({ children }) {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
     localStorage.removeItem('apiKey');
     localStorage.removeItem('recruitai_primary_resumes');
     localStorage.removeItem('recruitai_primary_career_descs');

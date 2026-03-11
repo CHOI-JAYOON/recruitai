@@ -87,6 +87,8 @@ export default function HomePage() {
   const [achieveInput, setAchieveInput] = useState('');
   const [showResumeUpload, setShowResumeUpload] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
+  const [activeTab, setActiveTab] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Drag & Drop state
   const dragItem = useRef(null);
@@ -655,186 +657,157 @@ export default function HomePage() {
         ))}
       </div>
 
-      {/* Portfolio & Career section */}
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-gray-900">내 포트폴리오 & 경력</h2>
-        <div className="flex gap-2">
-          <button onClick={() => { if (checkApiKey()) setShowResumeUpload(true); }}
-            className="px-4 py-2 text-sm font-semibold text-indigo-600 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition flex items-center gap-1.5">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
-            이력서 업로드
-          </button>
-          <button onClick={startAdd}
-            className="px-4 py-2 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary-dark transition">
-            + 추가
-          </button>
-        </div>
-      </div>
-
-      {portfolios.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-2xl border border-gray-200">
-          <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gray-100 flex items-center justify-center">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#b0b8c1" strokeWidth="1.5"><rect x="2" y="3" width="20" height="18" rx="2" /><path d="M8 7v10M16 7v10M2 12h20" /></svg>
-          </div>
-          <p className="text-[15px] font-semibold text-gray-600 mb-1">아직 등록된 항목이 없습니다</p>
-          <p className="text-sm text-gray-400 mb-5">경력이나 프로젝트 경험을 추가해보세요</p>
-          <button onClick={startAdd}
-            className="px-5 py-2.5 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary-dark transition">
-            첫 항목 추가하기
-          </button>
-        </div>
-      ) : (
-        <>
-          {/* Career section — grouped by company */}
-          {portfolios.some((p) => p.type === 'career') && (() => {
-            const careers = portfolios.filter((p) => p.type === 'career');
-            const companyOrder = [];
-            const companyMap = {};
-            careers.forEach((p) => {
-              const key = p.company || p.title || '기타';
-              if (!companyMap[key]) { companyOrder.push(key); companyMap[key] = []; }
-              companyMap[key].push(p);
-            });
-            return (
-              <div className="mb-6">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-6 h-6 rounded-md bg-[#3182f6]/10 flex items-center justify-center">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3182f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /></svg>
-                  </div>
-                  <h3 className="text-[15px] font-bold text-gray-800">경력</h3>
-                  <span className="text-xs text-gray-400 font-medium">{careers.length}건 · {companyOrder.length}개 회사</span>
-                </div>
-                <div className="flex flex-col gap-4">
-                  {companyOrder.map((company) => (
-                    <div key={company} className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-                      <div className="flex items-center gap-3 px-5 py-3.5 border-b border-gray-100 bg-gray-50/50">
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#3182f6] to-[#6366f1] flex items-center justify-center shrink-0">
-                          <span className="text-white text-sm font-bold">{company.charAt(0)}</span>
-                        </div>
-                        <div>
-                          <h4 className="text-[15px] font-bold text-gray-900">{company}</h4>
-                          <p className="text-xs text-gray-400">{companyMap[company].length}개 프로젝트</p>
-                        </div>
-                      </div>
-                      <div className="divide-y divide-gray-100">
-                        {companyMap[company].map((p) => {
-                          const idx = portfolios.indexOf(p);
-                          return (
-                            <div key={p.id}
-                              draggable onDragStart={() => handleDragStart(idx)} onDragOver={(e) => handleDragOver(e, idx)} onDrop={handleDrop} onDragEnd={handleDragEnd}
-                              className={`px-5 py-4 cursor-grab active:cursor-grabbing hover:bg-gray-50 transition-all ${dragIdx === idx ? 'opacity-40' : ''}`}>
-                              <div className="cursor-pointer" onClick={() => setExpandedId(expandedId === p.id ? null : p.id)}>
-                                <div className="flex items-center gap-2 mb-1.5">
-                                  <span className="text-xs font-semibold text-[#3182f6] bg-[#3182f6]/10 px-2 py-0.5 rounded-full">{p.category}</span>
-                                  {p.period && <span className="text-xs text-gray-400">{p.period}</span>}
-                                  <svg className={`w-4 h-4 text-gray-400 ml-auto transition-transform ${expandedId === p.id ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9" /></svg>
-                                </div>
-                                <p className="text-sm font-bold text-gray-900 mb-0.5">{p.title}</p>
-                                {p.role && <p className="text-xs text-gray-500 mb-1">{p.role}{p.team_size ? ` · ${p.team_size}` : ''}</p>}
-                                {p.tech_stack?.length > 0 && (
-                                  <div className="flex flex-wrap gap-1 mb-1.5">
-                                    {p.tech_stack.slice(0, 6).map((t, i) => (
-                                      <span key={i} className="text-[11px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">{t}</span>
-                                    ))}
-                                    {p.tech_stack.length > 6 && <span className="text-[11px] text-gray-400">+{p.tech_stack.length - 6}</span>}
-                                  </div>
-                                )}
-                                {expandedId !== p.id && p.description && <p className="text-[12px] text-gray-500 leading-relaxed line-clamp-2">{p.description}</p>}
-                              </div>
-                              {expandedId === p.id && (
-                                <div className="mt-3 pt-3 border-t border-gray-100 space-y-2">
-                                  {p.description && <p className="text-[13px] text-gray-600 leading-relaxed">{p.description}</p>}
-                                  {p.achievements?.length > 0 && (
-                                    <div>
-                                      <p className="text-xs font-semibold text-gray-700 mb-1">주요 성과</p>
-                                      <ul className="space-y-1">
-                                        {p.achievements.map((a, i) => (
-                                          <li key={i} className="text-[12px] text-gray-600 flex items-start gap-1.5">
-                                            <span className="text-[#3182f6] mt-0.5">•</span>{a}
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                  )}
-                                  {p.links?.length > 0 && (
-                                    <div className="flex flex-wrap gap-2">
-                                      {p.links.map((l, i) => (
-                                        <a key={i} href={l} target="_blank" rel="noopener noreferrer" className="text-[11px] text-primary hover:underline">{l}</a>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                              <div className="flex items-center gap-1 mt-2">
-                                <button onClick={() => startEdit(p)} className="px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition">수정</button>
-                                <button onClick={() => setDeleteTarget(p.id)} className="px-3 py-1 text-xs font-medium text-red-500 hover:bg-red-50 rounded-lg transition">삭제</button>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
+      {/* Portfolio & Career section — Toss style */}
+      {(() => {
+        const careerCount = portfolios.filter((p) => p.type === 'career').length;
+        const projectCount = portfolios.filter((p) => p.type !== 'career').length;
+        const filtered = portfolios.filter((p) => {
+          if (activeTab === 'career' && p.type !== 'career') return false;
+          if (activeTab === 'portfolio' && p.type === 'career') return false;
+          if (searchQuery.trim()) {
+            const q = searchQuery.toLowerCase();
+            return (p.title?.toLowerCase().includes(q) || p.company?.toLowerCase().includes(q) || p.role?.toLowerCase().includes(q) || p.category?.toLowerCase().includes(q));
+          }
+          return true;
+        });
+        return (
+          <div className="bg-white rounded-2xl overflow-hidden">
+            {/* Header */}
+            <div className="px-6 pt-6 pb-4">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-[22px] font-extrabold text-[#191f28]">내 포트폴리오 & 경력</h2>
+                <div className="flex gap-2">
+                  <button onClick={() => { if (checkApiKey()) setShowResumeUpload(true); }}
+                    className="px-3.5 py-2 text-[13px] font-semibold text-[#3182f6] bg-[#3182f6]/8 rounded-xl hover:bg-[#3182f6]/15 transition flex items-center gap-1.5">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
+                    이력서 업로드
+                  </button>
+                  <button onClick={startAdd}
+                    className="px-3.5 py-2 bg-[#3182f6] text-white text-[13px] font-semibold rounded-xl hover:bg-[#1b6ce5] transition">
+                    + 추가
+                  </button>
                 </div>
               </div>
-            );
-          })()}
 
-          {/* Portfolio section */}
-          {portfolios.some((p) => p.type !== 'career') && (
-            <div className="mb-6">
+              {/* Tabs */}
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-6 h-6 rounded-md bg-[#7b61ff]/10 flex items-center justify-center">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7b61ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>
-                </div>
-                <h3 className="text-[15px] font-bold text-gray-800">포트폴리오</h3>
-                <span className="text-xs text-gray-400 font-medium">{portfolios.filter((p) => p.type !== 'career').length}건</span>
+                {[
+                  { key: 'all', label: '전체', count: portfolios.length },
+                  { key: 'career', label: '경력', count: careerCount },
+                  { key: 'portfolio', label: '프로젝트', count: projectCount },
+                ].map((tab) => (
+                  <button key={tab.key} onClick={() => setActiveTab(tab.key)}
+                    className={`px-3.5 py-1.5 text-[13px] font-semibold rounded-lg transition ${
+                      activeTab === tab.key
+                        ? 'bg-[#191f28] text-white'
+                        : 'text-[#8b95a1] hover:bg-[#f2f4f6]'
+                    }`}>
+                    {tab.label} {tab.count > 0 && <span className={`ml-0.5 ${activeTab === tab.key ? 'text-white/70' : 'text-[#b0b8c1]'}`}>{tab.count}</span>}
+                  </button>
+                ))}
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 stagger-children">
-                {portfolios.filter((p) => p.type !== 'career').map((p) => {
-                  const idx = portfolios.indexOf(p);
-                  return (
-                    <div key={p.id}
-                      draggable onDragStart={() => handleDragStart(idx)} onDragOver={(e) => handleDragOver(e, idx)} onDrop={handleDrop} onDragEnd={handleDragEnd}
-                      className={`bg-white rounded-2xl border border-gray-200 overflow-hidden card-hover flex flex-col cursor-grab active:cursor-grabbing transition-all ${dragIdx === idx ? 'opacity-40 scale-95' : ''} ${expandedId === p.id ? '' : 'h-[280px]'}`}>
-                      <div className="p-4 flex flex-col flex-1 min-h-0">
-                        <div className="cursor-pointer" onClick={() => setExpandedId(expandedId === p.id ? null : p.id)}>
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="text-xs font-semibold text-[#7b61ff] bg-[#7b61ff]/10 px-2.5 py-0.5 rounded-full">{p.category}</span>
-                            {p.period && <span className="text-xs text-gray-400">{p.period}</span>}
-                            {portfolioRefCount[p.id] > 0 && (
-                              <span className="text-[10px] font-semibold text-[#7b61ff] bg-[#7b61ff]/10 px-2 py-0.5 rounded-full ml-auto">
-                                자소서 {portfolioRefCount[p.id]}회 참조
-                              </span>
+
+              {/* Search */}
+              {portfolios.length > 0 && (
+                <div className="relative">
+                  <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#b0b8c1]" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+                  <input
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 bg-[#f2f4f6] rounded-xl text-[14px] text-[#191f28] placeholder-[#b0b8c1] focus:outline-none focus:bg-[#e8ebed] transition border-0"
+                    placeholder="프로젝트, 회사, 역할로 검색"
+                  />
+                  {searchQuery && (
+                    <button onClick={() => setSearchQuery('')} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#b0b8c1] hover:text-[#6b7684]">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* List */}
+            <div className="border-t border-[#f2f4f6]">
+              {portfolios.length === 0 ? (
+                <div className="text-center py-16">
+                  <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-[#f2f4f6] flex items-center justify-center">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#b0b8c1" strokeWidth="1.5"><rect x="2" y="3" width="20" height="18" rx="2" /><path d="M8 7v10M16 7v10M2 12h20" /></svg>
+                  </div>
+                  <p className="text-[15px] font-semibold text-[#4e5968] mb-1">아직 등록된 항목이 없습니다</p>
+                  <p className="text-[13px] text-[#8b95a1] mb-5">경력이나 프로젝트 경험을 추가해보세요</p>
+                  <button onClick={startAdd}
+                    className="px-5 py-2.5 bg-[#3182f6] text-white text-[13px] font-semibold rounded-xl hover:bg-[#1b6ce5] transition">
+                    첫 항목 추가하기
+                  </button>
+                </div>
+              ) : filtered.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-[14px] text-[#8b95a1]">검색 결과가 없습니다</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-[#f2f4f6]">
+                  {filtered.map((p) => {
+                    const idx = portfolios.indexOf(p);
+                    const isCareer = p.type === 'career';
+                    const accentColor = isCareer ? '#3182f6' : '#7b61ff';
+                    const gradientFrom = isCareer ? 'from-[#3182f6]' : 'from-[#7b61ff]';
+                    const gradientTo = isCareer ? 'to-[#6366f1]' : 'to-[#a78bfa]';
+                    return (
+                      <div key={p.id}
+                        draggable onDragStart={() => handleDragStart(idx)} onDragOver={(e) => handleDragOver(e, idx)} onDrop={handleDrop} onDragEnd={handleDragEnd}
+                        className={`px-6 py-4 cursor-grab active:cursor-grabbing hover:bg-[#f8f9fa] transition-all ${dragIdx === idx ? 'opacity-40' : ''}`}>
+                        <div className="flex items-start gap-3 cursor-pointer" onClick={() => setExpandedId(expandedId === p.id ? null : p.id)}>
+                          {/* Icon */}
+                          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradientFrom} ${gradientTo} flex items-center justify-center shrink-0 mt-0.5`}>
+                            {isCareer ? (
+                              <span className="text-white text-sm font-bold">{(p.company || p.title || '?').charAt(0)}</span>
+                            ) : (
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>
                             )}
-                            <svg className={`w-4 h-4 text-gray-400 ${!portfolioRefCount[p.id] ? 'ml-auto' : ''} transition-transform ${expandedId === p.id ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9" /></svg>
                           </div>
-                          <h3 className="font-bold text-gray-900 mb-2 line-clamp-1">{p.title}</h3>
-                          {p.tech_stack?.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mb-2">
-                              {p.tech_stack.slice(0, 5).map((t, i) => (
-                                <span key={i} className="text-[11px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">{t}</span>
-                              ))}
-                              {p.tech_stack.length > 5 && <span className="text-[11px] text-gray-400">+{p.tech_stack.length - 5}</span>}
+                          {/* Content */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-0.5">
+                              <p className="text-[15px] font-bold text-[#191f28] truncate">{p.title}</p>
+                              <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded shrink-0`} style={{ color: accentColor, backgroundColor: `${accentColor}15` }}>{p.category}</span>
+                              {portfolioRefCount[p.id] > 0 && (
+                                <span className="text-[10px] font-semibold text-[#7b61ff] bg-[#7b61ff]/10 px-1.5 py-0.5 rounded shrink-0">참조 {portfolioRefCount[p.id]}</span>
+                              )}
                             </div>
-                          )}
-                        </div>
-                        {expandedId !== p.id ? (
-                          <div className="flex-1 min-h-0 overflow-hidden">
-                            {p.role && <p className="text-[13px] text-gray-600 mb-1"><span className="font-semibold text-gray-700">역할:</span> {p.role}</p>}
-                            {p.description && <p className="text-[12px] text-gray-500 leading-relaxed line-clamp-3">{p.description}</p>}
+                            <p className="text-[13px] text-[#6b7684]">
+                              {isCareer && p.company && `${p.company} · `}{p.role}{p.period ? ` · ${p.period}` : ''}{p.team_size ? ` · ${p.team_size}` : ''}
+                            </p>
+                            {expandedId !== p.id && p.tech_stack?.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-1.5">
+                                {p.tech_stack.slice(0, 5).map((t, i) => (
+                                  <span key={i} className="text-[11px] text-[#6b7684] bg-[#f2f4f6] px-2 py-0.5 rounded-md">{t}</span>
+                                ))}
+                                {p.tech_stack.length > 5 && <span className="text-[11px] text-[#b0b8c1]">+{p.tech_stack.length - 5}</span>}
+                              </div>
+                            )}
                           </div>
-                        ) : (
-                          <div className="space-y-2">
-                            {p.role && <p className="text-[13px] text-gray-600"><span className="font-semibold text-gray-700">역할:</span> {p.role}{p.team_size ? ` · ${p.team_size}` : ''}</p>}
-                            {p.description && <p className="text-[13px] text-gray-600 leading-relaxed">{p.description}</p>}
+                          {/* Chevron */}
+                          <svg className={`w-5 h-5 text-[#b0b8c1] shrink-0 mt-1.5 transition-transform ${expandedId === p.id ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9" /></svg>
+                        </div>
+
+                        {/* Expanded detail */}
+                        {expandedId === p.id && (
+                          <div className="pl-[52px] mt-3 pt-3 border-t border-[#f2f4f6] space-y-2.5">
+                            {p.tech_stack?.length > 0 && (
+                              <div className="flex flex-wrap gap-1">
+                                {p.tech_stack.map((t, i) => (
+                                  <span key={i} className="text-[11px] text-[#6b7684] bg-[#f2f4f6] px-2 py-0.5 rounded-md">{t}</span>
+                                ))}
+                              </div>
+                            )}
+                            {p.description && <p className="text-[13px] text-[#4e5968] leading-relaxed">{p.description}</p>}
                             {p.achievements?.length > 0 && (
                               <div>
-                                <p className="text-xs font-semibold text-gray-700 mb-1">주요 성과</p>
+                                <p className="text-[12px] font-bold text-[#6b7684] mb-1">주요 성과</p>
                                 <ul className="space-y-1">
                                   {p.achievements.map((a, i) => (
-                                    <li key={i} className="text-[12px] text-gray-600 flex items-start gap-1.5">
-                                      <span className="text-[#7b61ff] mt-0.5">•</span>{a}
+                                    <li key={i} className="text-[13px] text-[#4e5968] flex items-start gap-2">
+                                      <span className="text-[#3182f6] mt-0.5">•</span><span>{a}</span>
                                     </li>
                                   ))}
                                 </ul>
@@ -843,25 +816,25 @@ export default function HomePage() {
                             {p.links?.length > 0 && (
                               <div className="flex flex-wrap gap-2">
                                 {p.links.map((l, i) => (
-                                  <a key={i} href={l} target="_blank" rel="noopener noreferrer" className="text-[11px] text-primary hover:underline">{l}</a>
+                                  <a key={i} href={l} target="_blank" rel="noopener noreferrer" className="text-[12px] text-[#3182f6] hover:underline">{l}</a>
                                 ))}
                               </div>
                             )}
+                            <div className="flex items-center gap-1 pt-2">
+                              <button onClick={() => startEdit(p)} className="px-3 py-1.5 text-[12px] font-medium text-[#4e5968] hover:bg-[#f2f4f6] rounded-lg transition">수정</button>
+                              <button onClick={() => setDeleteTarget(p.id)} className="px-3 py-1.5 text-[12px] font-medium text-[#e0437b] hover:bg-[#e0437b]/5 rounded-lg transition">삭제</button>
+                            </div>
                           </div>
                         )}
-                        <div className="flex items-center gap-1 pt-3 mt-auto border-t border-gray-100">
-                          <button onClick={() => startEdit(p)} className="px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition">수정</button>
-                          <button onClick={() => setDeleteTarget(p.id)} className="px-3 py-1 text-xs font-medium text-red-500 hover:bg-red-50 rounded-lg transition">삭제</button>
-                        </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
-          )}
-        </>
-      )}
+          </div>
+        );
+      })()}
 
       <ConfirmModal open={!!deleteTarget} title="포트폴리오 삭제" message="이 포트폴리오를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
         onConfirm={handleDelete} onCancel={() => setDeleteTarget(null)} />

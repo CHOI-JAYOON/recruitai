@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Header, HTTPException
+from fastapi import APIRouter, Header, HTTPException, Depends
 from pydantic import BaseModel
 from agents.interview_coach_agent import InterviewCoachAgent
 from models.interview import InterviewQuestion
 from services.openai_client import get_openai_client
 from services.storage import StorageService
 from services.interview_history_storage import InterviewHistoryStorage
+from services.jwt_service import get_current_user
 
 router = APIRouter()
 storage = StorageService()
@@ -25,7 +26,6 @@ class EvalRequest(BaseModel):
 
 
 class SaveSessionRequest(BaseModel):
-    username: str
     job_description: str = ""
     questions: list[dict] = []
     feedbacks: list[dict] = []
@@ -33,8 +33,8 @@ class SaveSessionRequest(BaseModel):
 
 
 @router.post("/generate-questions")
-def generate_questions(req: GenQuestionsRequest, x_api_key: str = Header(...)):
-    portfolios = storage.load_all()
+def generate_questions(req: GenQuestionsRequest, current_user: dict = Depends(get_current_user), x_api_key: str = Header(...)):
+    portfolios = storage.load_all(username=current_user["username"])
     client = get_openai_client(x_api_key)
     agent = InterviewCoachAgent(client)
     questions = agent.generate_questions(
@@ -46,8 +46,8 @@ def generate_questions(req: GenQuestionsRequest, x_api_key: str = Header(...)):
 
 
 @router.post("/evaluate")
-def evaluate_answer(req: EvalRequest, x_api_key: str = Header(...)):
-    portfolios = storage.load_all()
+def evaluate_answer(req: EvalRequest, current_user: dict = Depends(get_current_user), x_api_key: str = Header(...)):
+    portfolios = storage.load_all(username=current_user["username"])
     client = get_openai_client(x_api_key)
     agent = InterviewCoachAgent(client)
     feedback = agent.evaluate_answer(req.question, req.user_answer, portfolios)
@@ -55,25 +55,25 @@ def evaluate_answer(req: EvalRequest, x_api_key: str = Header(...)):
 
 
 @router.post("/save-session")
-def save_session(req: SaveSessionRequest):
+def save_session(req: SaveSessionRequest, current_user: dict = Depends(get_current_user)):
     record = {
         "job_description": req.job_description,
         "questions": req.questions,
         "feedbacks": req.feedbacks,
         "avg_score": req.avg_score,
     }
-    saved = history_storage.save(req.username, record)
+    saved = history_storage.save(current_user["username"], record)
     return saved
 
 
 @router.get("/history")
-def get_history(username: str):
-    return history_storage.load(username)
+def get_history(current_user: dict = Depends(get_current_user)):
+    return history_storage.load(current_user["username"])
 
 
 @router.delete("/history/{record_id}")
-def delete_history(record_id: str, username: str):
-    deleted = history_storage.delete(username, record_id)
+def delete_history(record_id: str, current_user: dict = Depends(get_current_user)):
+    deleted = history_storage.delete(current_user["username"], record_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="기록을 찾을 수 없습니다.")
     return {"message": "삭제됨"}

@@ -236,7 +236,7 @@ export default function CoverLetterPage() {
                   <span className="text-xs font-semibold text-green-700">이력서: {primaryResume.target_role}</span>
                 </div>
               ) : (
-                <button onClick={() => navigate('/resume')}
+                <button onClick={() => navigate('/mypage?tab=resume')}
                   className="flex items-center gap-2 px-3.5 py-2.5 bg-amber-50 border border-amber-100 rounded-xl hover:bg-amber-100 transition group">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                   <span className="text-xs font-semibold text-amber-600">대표 이력서 설정하기</span>
@@ -249,7 +249,7 @@ export default function CoverLetterPage() {
                   <span className="text-xs font-semibold text-[#e0437b]">경력기술서: {primaryCareerDesc.target_role}</span>
                 </div>
               ) : (
-                <button onClick={() => navigate('/career-description')}
+                <button onClick={() => navigate('/mypage?tab=resume')}
                   className="flex items-center gap-2 px-3.5 py-2.5 bg-amber-50 border border-amber-100 rounded-xl hover:bg-amber-100 transition group">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                   <span className="text-xs font-semibold text-amber-600">대표 경력기술서 설정하기</span>
