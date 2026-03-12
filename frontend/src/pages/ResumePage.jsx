@@ -46,6 +46,7 @@ export default function ResumePage() {
       });
       setResult(res.data);
       setStep(2);
+      window.scrollTo(0, 0);
       toast.success('이력서가 생성되었습니다!');
     } catch (err) {
       toast.error(err.response?.data?.detail || '이력서 생성 실패. API 키를 확인해주세요.');

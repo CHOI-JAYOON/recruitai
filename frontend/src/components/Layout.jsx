@@ -317,7 +317,7 @@ export default function Layout({ children }) {
       {/* Footer */}
       <footer className="border-t border-gray-200 dark:border-gray-700 py-6">
         <div className="max-w-5xl mx-auto px-4 sm:px-5 flex items-center justify-between text-xs text-gray-400">
-          <span>&copy; 2025 RecruitAI</span>
+          <span>&copy; 2026 RecruitAI</span>
           <div className="flex gap-4">
             <a href="/pricing" className="hover:text-gray-600 dark:hover:text-gray-300 transition-colors">요금제</a>
             <a href="/" className="hover:text-gray-600 dark:hover:text-gray-300 transition-colors">소개</a>

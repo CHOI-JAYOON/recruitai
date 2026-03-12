@@ -46,6 +46,7 @@ export default function CareerDescPage() {
       });
       setResult(res.data);
       setStep(2);
+      window.scrollTo(0, 0);
       toast.success('경력기술서가 생성되었습니다!');
     } catch (err) {
       toast.error(err.response?.data?.detail || '경력기술서 생성 실패. API 키를 확인해주세요.');

@@ -1,42 +1,220 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
-const features = [
+/* ── 기능별 목업 프리뷰 컴포넌트 ── */
+function PortfolioMockup() {
+  return (
+    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
+      <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2">
+        <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+        <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+        <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
+        <span className="ml-2 text-[10px] text-gray-400">포트폴리오 관리</span>
+      </div>
+      <div className="p-4 space-y-2.5">
+        <div className="flex items-center gap-2 p-2.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800/30">
+          <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-800/40 flex items-center justify-center text-[11px]">📄</div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[11px] font-semibold text-gray-800 dark:text-gray-200">프론트엔드 포트폴리오.pdf</div>
+            <div className="text-[9px] text-gray-400">AI 파싱 완료 · 3개 프로젝트</div>
+          </div>
+          <div className="text-[9px] text-green-600 font-bold bg-green-50 dark:bg-green-900/30 px-1.5 py-0.5 rounded">완료</div>
+        </div>
+        <div className="flex items-center gap-2 p-2.5 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
+          <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-[11px]">📁</div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[11px] font-semibold text-gray-800 dark:text-gray-200">백엔드 프로젝트 정리.pdf</div>
+            <div className="text-[9px] text-gray-400">파싱 대기 중</div>
+          </div>
+        </div>
+        <div className="flex items-center justify-center gap-1.5 p-2 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span className="text-[10px] text-gray-400">파일 업로드</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ResumeMockup() {
+  return (
+    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
+      <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2">
+        <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+        <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+        <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
+        <span className="ml-2 text-[10px] text-gray-400">이력서 생성</span>
+      </div>
+      <div className="p-4 space-y-2.5">
+        <div className="space-y-1.5">
+          <div className="text-[10px] font-semibold text-gray-500 dark:text-gray-400">지원 직무</div>
+          <div className="px-3 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg text-[11px] text-gray-700 dark:text-gray-300 border border-gray-100 dark:border-gray-700">프론트엔드 개발자</div>
+        </div>
+        <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800/30">
+          <div className="flex items-center gap-1.5 mb-2">
+            <div className="w-4 h-4 rounded bg-blue-500 flex items-center justify-center">
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="white"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <span className="text-[10px] font-bold text-blue-700 dark:text-blue-300">AI 생성 결과</span>
+          </div>
+          <div className="space-y-1">
+            <div className="h-2 bg-blue-200/60 dark:bg-blue-700/40 rounded-full w-full" />
+            <div className="h-2 bg-blue-200/60 dark:bg-blue-700/40 rounded-full w-[90%]" />
+            <div className="h-2 bg-blue-200/60 dark:bg-blue-700/40 rounded-full w-[75%]" />
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <div className="flex-1 py-1.5 bg-blue-500 rounded-lg text-center text-[10px] text-white font-bold">복사</div>
+          <div className="flex-1 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg text-center text-[10px] text-gray-600 dark:text-gray-300 font-bold">다시 생성</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CoverLetterMockup() {
+  return (
+    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
+      <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2">
+        <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+        <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+        <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
+        <span className="ml-2 text-[10px] text-gray-400">자소서 작성</span>
+      </div>
+      <div className="p-4 space-y-2.5">
+        <div className="space-y-1.5">
+          <div className="text-[10px] font-semibold text-gray-500 dark:text-gray-400">자소서 항목</div>
+          <div className="px-3 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg text-[11px] text-gray-700 dark:text-gray-300 border border-gray-100 dark:border-gray-700">지원 동기 및 입사 후 포부</div>
+        </div>
+        <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-100 dark:border-green-800/30">
+          <div className="text-[10px] text-green-800 dark:text-green-300 leading-relaxed">
+            "저는 프론트엔드 개발 경험을 바탕으로 사용자 중심의 서비스를 만들고자 지원하게 되었습니다..."
+          </div>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-[9px] text-gray-400">482자 / 500자</span>
+          <div className="flex gap-1.5">
+            <div className="px-2.5 py-1 bg-green-500 rounded text-[9px] text-white font-bold">복사</div>
+            <div className="px-2.5 py-1 bg-gray-100 dark:bg-gray-700 rounded text-[9px] text-gray-500 font-bold">수정</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function InterviewMockup() {
+  return (
+    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
+      <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2">
+        <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+        <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+        <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
+        <span className="ml-2 text-[10px] text-gray-400">면접 연습</span>
+      </div>
+      <div className="p-4 space-y-2.5">
+        <div className="p-2.5 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-100 dark:border-amber-800/30">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <div className="w-5 h-5 rounded-full bg-amber-400 flex items-center justify-center text-[8px] text-white font-bold">AI</div>
+            <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300">면접관</span>
+          </div>
+          <div className="text-[10px] text-gray-700 dark:text-gray-300 leading-relaxed">
+            "이전 프로젝트에서 팀 내 의견 충돌이 있었을 때 어떻게 해결하셨나요?"
+          </div>
+        </div>
+        <div className="p-2.5 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-[8px] text-white font-bold">나</div>
+            <span className="text-[10px] font-bold text-gray-600 dark:text-gray-300">내 답변</span>
+          </div>
+          <div className="text-[10px] text-gray-600 dark:text-gray-400 leading-relaxed">답변을 입력하세요...</div>
+        </div>
+        <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800/30 flex items-center gap-2">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+          <span className="text-[9px] text-blue-600 dark:text-blue-400 font-semibold">음성으로 답변하기</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CareerDescMockup() {
+  return (
+    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
+      <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2">
+        <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+        <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+        <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
+        <span className="ml-2 text-[10px] text-gray-400">경력기술서</span>
+      </div>
+      <div className="p-4 space-y-2.5">
+        <div className="p-2.5 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-100 dark:border-purple-800/30">
+          <div className="text-[10px] font-bold text-purple-700 dark:text-purple-300 mb-1.5">경력 요약</div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+              <span className="text-[10px] text-gray-700 dark:text-gray-300">ABC Corp · 프론트엔드 개발자</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-purple-300" />
+              <span className="text-[10px] text-gray-700 dark:text-gray-300">DEF Inc · 풀스택 인턴</span>
+            </div>
+          </div>
+        </div>
+        <div className="p-2.5 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
+          <div className="text-[10px] font-bold text-gray-600 dark:text-gray-300 mb-1">AI 생성 경력기술서</div>
+          <div className="space-y-1">
+            <div className="h-2 bg-gray-200 dark:bg-gray-600 rounded-full w-full" />
+            <div className="h-2 bg-gray-200 dark:bg-gray-600 rounded-full w-[85%]" />
+            <div className="h-2 bg-gray-200 dark:bg-gray-600 rounded-full w-[92%]" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── 기능 소개 데이터 (목업 + 설명) ── */
+const featureShowcases = [
   {
-    title: '이력서 생성',
-    description: '프로필 정보를 기반으로 직무에 최적화된 이력서를 AI가 자동 생성합니다.',
-    icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z|M14 2v6h6|M16 13H8|M16 17H8|M10 9H8',
-    color: 'bg-blue-50 text-blue-600',
+    title: '포트폴리오 분석',
+    subtitle: 'AI가 포트폴리오를 자동으로 파싱',
+    description: 'PDF 파일을 업로드하면 AI가 프로젝트, 기술 스택, 경력 등 핵심 내용을 자동으로 추출하고 구조화합니다.',
+    tags: ['PDF 업로드', 'AI 파싱', '프로젝트 정리'],
+    mockup: <PortfolioMockup />,
+    reverse: false,
+  },
+  {
+    title: '맞춤 이력서 생성',
+    subtitle: '직무에 최적화된 이력서를 AI가 작성',
+    description: '프로필과 포트폴리오 정보를 기반으로, 지원 직무에 맞는 이력서를 자동 생성합니다. 클릭 한 번으로 완성된 이력서를 받아보세요.',
+    tags: ['직무 맞춤', 'AI 자동 생성', '원클릭 복사'],
+    mockup: <ResumeMockup />,
+    reverse: true,
   },
   {
     title: '자소서 작성',
-    description: '지원 공고에 맞춰 설득력 있는 자기소개서 답변을 AI가 작성해 줍니다.',
-    icon: 'M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7|M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z',
-    color: 'bg-green-50 text-green-600',
-  },
-  {
-    title: '경력기술서',
-    description: '경력 사항을 체계적으로 정리하여 전문적인 경력기술서를 만들어 줍니다.',
-    icon: 'M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2|M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z',
-    color: 'bg-purple-50 text-purple-600',
+    subtitle: '지원 공고에 맞는 자기소개서 생성',
+    description: '지원 공고와 본인의 경험을 분석하여, 설득력 있는 자기소개서 답변을 AI가 작성해 줍니다. 글자 수 조절도 가능합니다.',
+    tags: ['공고 분석', 'RAG 기반', '글자 수 조절'],
+    mockup: <CoverLetterMockup />,
+    reverse: false,
   },
   {
     title: '면접 연습',
-    description: 'AI 면접관이 실제와 유사한 질문을 하고, 답변에 대해 상세한 피드백을 제공합니다.',
-    icon: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z',
-    color: 'bg-amber-50 text-amber-600',
+    subtitle: 'AI 면접관과 실전 면접 시뮬레이션',
+    description: 'AI가 지원 직무에 맞는 면접 질문을 생성하고, 답변에 대해 상세한 피드백을 제공합니다. 음성 답변도 지원합니다.',
+    tags: ['맞춤 질문', '실시간 피드백', '음성 지원'],
+    mockup: <InterviewMockup />,
+    reverse: true,
   },
   {
-    title: '포트폴리오 분석',
-    description: '포트폴리오 파일을 업로드하면 AI가 핵심 내용을 파싱하고 정리해 줍니다.',
-    icon: 'M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z',
-    color: 'bg-cyan-50 text-cyan-600',
-  },
-  {
-    title: '지원 현황 관리',
-    description: '지원한 회사와 진행 상태를 한눈에 관리하고 추적할 수 있습니다.',
-    icon: 'M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2|M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2|M9 14l2 2 4-4',
-    color: 'bg-rose-50 text-rose-600',
+    title: '경력기술서',
+    subtitle: '경력 사항을 전문적으로 정리',
+    description: '경력 정보를 입력하면 AI가 체계적이고 전문적인 경력기술서를 자동으로 생성합니다.',
+    tags: ['경력 정리', 'AI 자동 생성', '전문 포맷'],
+    mockup: <CareerDescMockup />,
+    reverse: false,
   },
 ];
 
@@ -81,9 +259,9 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Features */}
+      {/* Feature Showcases */}
       <section className="max-w-6xl mx-auto px-4 pb-16">
-        <div className="text-center mb-12">
+        <div className="text-center mb-14">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mb-3">
             취업 준비에 필요한 모든 AI 기능
           </h2>
@@ -92,26 +270,44 @@ export default function AboutPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {features.map((feature) => (
+        <div className="space-y-20">
+          {featureShowcases.map((feature, idx) => (
             <div
               key={feature.title}
-              className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+              className={`flex flex-col ${feature.reverse ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center gap-8 lg:gap-14`}
             >
-              <div className={`w-11 h-11 rounded-xl ${feature.color} flex items-center justify-center mb-4`}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  {feature.icon.split('|').map((d, i) => <path key={i} d={d} />)}
-                </svg>
+              {/* Mockup */}
+              <div className="w-full lg:w-[45%] max-w-sm mx-auto lg:mx-0">
+                {feature.mockup}
               </div>
-              <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">{feature.title}</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{feature.description}</p>
+
+              {/* Text */}
+              <div className="w-full lg:w-[55%] text-center lg:text-left">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full mb-4">
+                  <span className="text-[11px] font-bold text-primary">0{idx + 1}</span>
+                  <span className="text-[11px] text-gray-500 dark:text-gray-400">{feature.subtitle}</span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white mb-3">
+                  {feature.title}
+                </h3>
+                <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 leading-relaxed mb-5">
+                  {feature.description}
+                </p>
+                <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
+                  {feature.tags.map((tag) => (
+                    <span key={tag} className="px-3 py-1.5 text-[11px] font-semibold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </div>
           ))}
         </div>
       </section>
 
       {/* How it works */}
-      <section className="bg-white dark:bg-gray-800 border-t border-b border-gray-200 dark:border-gray-700 py-16 -mx-4 sm:-mx-5 px-4 sm:px-5">
+      <section className="bg-white dark:bg-gray-800 border-t border-b border-gray-200 dark:border-gray-700 py-16 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mb-3">

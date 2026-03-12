@@ -159,7 +159,7 @@ export default function PrivacyPolicyPage() {
       {/* Footer */}
       <footer className="border-t border-gray-200 dark:border-gray-700 mt-16 py-8">
         <div className="max-w-4xl mx-auto px-6 text-center text-sm text-gray-400">
-          <p>&copy; 2025 RecruitAI. All rights reserved.</p>
+          <p>&copy; 2026 RecruitAI. All rights reserved.</p>
         </div>
       </footer>
     </div>

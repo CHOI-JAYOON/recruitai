@@ -40,7 +40,10 @@ def generate_career_description(req: GenerateRequest, current_user: dict = Depen
         usage_tracker.check_and_increment(username, "career_desc", current_user["plan"], current_user["role"])
         client = get_openai_client()
     profile = profile_storage.load(username)
-    portfolios = storage.get_by_ids(req.selected_portfolio_ids) if req.selected_portfolio_ids else storage.list_all()
+    if req.selected_portfolio_ids:
+        portfolios = storage.get_by_ids(req.selected_portfolio_ids)
+    else:
+        portfolios = [p for p in storage.load_all(username) if p.type == 'career']
     agent = CareerDescriptionAgent(client)
     result = agent.generate(profile, portfolios, req.target_role)
     result_dict = result.model_dump()
@@ -66,7 +69,10 @@ def download_career_description(req: GenerateRequest, current_user: dict = Depen
         usage_tracker.check_and_increment(username, "career_desc", current_user["plan"], current_user["role"])
         client = get_openai_client()
     profile = profile_storage.load(username)
-    portfolios = storage.get_by_ids(req.selected_portfolio_ids) if req.selected_portfolio_ids else storage.list_all()
+    if req.selected_portfolio_ids:
+        portfolios = storage.get_by_ids(req.selected_portfolio_ids)
+    else:
+        portfolios = [p for p in storage.load_all(username) if p.type == 'career']
     agent = CareerDescriptionAgent(client)
     result = agent.generate(profile, portfolios, req.target_role)
 
