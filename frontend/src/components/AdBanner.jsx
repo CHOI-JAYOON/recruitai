@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-const AD_CLIENT = 'ca-pub-XXXXX'; // TODO: 실제 AdSense Publisher ID로 교체
+const AD_CLIENT = 'ca-pub-9563760248498524';
 
 export default function AdBanner({ adSlot = '0000000000', adFormat = 'auto', className = '' }) {
   const pushed = useRef(false);
