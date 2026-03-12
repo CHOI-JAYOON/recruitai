@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import api from '../api/client';
 import LoadingSpinner from '../components/LoadingSpinner';
+import LoadingWithAd from '../components/LoadingWithAd';
 import ApiKeyModal, { useApiKeyCheck } from '../components/ApiKeyModal';
 
 // Word-level diff: highlights new/changed words in the refined answer
@@ -326,7 +327,7 @@ export default function CoverLetterPage() {
 
             {q.loading && (
               <div className="mt-3">
-                <LoadingSpinner text="대표 이력서/경력기술서 기반 답변 생성 중..." />
+                <LoadingWithAd text="대표 이력서/경력기술서 기반 답변 생성 중..." adSlot="SLOT_COVERLETTER" />
               </div>
             )}
 

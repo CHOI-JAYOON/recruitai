@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import api from '../api/client';
 import LoadingSpinner from '../components/LoadingSpinner';
+import LoadingWithAd from '../components/LoadingWithAd';
 import ApiKeyModal, { useApiKeyCheck } from '../components/ApiKeyModal';
 
 const steps = [
@@ -172,7 +173,7 @@ export default function CareerDescPage() {
                 {generating ? 'AI 생성 중...' : '경력기술서 생성'}
               </button>
             </div>
-            {generating && <div className="mt-2"><LoadingSpinner text="AI가 경력기술서를 작성하고 있습니다..." /></div>}
+            {generating && <div className="mt-2"><LoadingWithAd text="AI가 경력기술서를 작성하고 있습니다..." adSlot="SLOT_CAREER" /></div>}
           </div>
         );
       })()}

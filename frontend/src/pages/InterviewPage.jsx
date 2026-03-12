@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import api from '../api/client';
 import LoadingSpinner from '../components/LoadingSpinner';
+import LoadingWithAd from '../components/LoadingWithAd';
 import ApiKeyModal, { useApiKeyCheck } from '../components/ApiKeyModal';
 
 const categoryLabels = { technical: '기술', behavioral: '인성', situational: '상황', portfolio: '포트폴리오', resume: '이력서', solution: '솔루션' };
@@ -362,7 +363,7 @@ export default function InterviewPage() {
             </div>
           </div>
 
-          {generating && <LoadingSpinner text="AI가 면접 질문을 생성하고 있습니다..." />}
+          {generating && <LoadingWithAd text="AI가 면접 질문을 생성하고 있습니다..." adSlot="SLOT_INTERVIEW" />}
 
           {questions.length > 0 && (
             <div className="flex flex-col gap-2 stagger-children">
@@ -424,7 +425,7 @@ export default function InterviewPage() {
                 {evaluating ? 'AI가 평가 중...' : '답변 제출'}
               </button>
 
-              {evaluating && <div className="mt-3"><LoadingSpinner text="AI가 답변을 평가하고 있습니다..." /></div>}
+              {evaluating && <div className="mt-3"><LoadingWithAd text="AI가 답변을 평가하고 있습니다..." adSlot="SLOT_INTERVIEW" /></div>}
 
               {feedbacks.length > 0 && (
                 <div className="mt-6">
