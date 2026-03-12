@@ -190,6 +190,14 @@ export default function Layout({ children }) {
           {children}
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="border-t border-gray-200 dark:border-gray-700 py-6">
+        <div className="max-w-5xl mx-auto px-4 sm:px-5 flex items-center justify-between text-xs text-gray-400">
+          <span>&copy; 2025 RecruitAI</span>
+          <a href="/privacy" className="hover:text-gray-600 dark:hover:text-gray-300 transition-colors">개인정보처리방침</a>
+        </div>
+      </footer>
     </div>
   );
 }

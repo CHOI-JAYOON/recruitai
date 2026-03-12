@@ -11,6 +11,7 @@ import CoverLetterPage from './pages/CoverLetterPage';
 import InterviewPage from './pages/InterviewPage';
 import CareerDescPage from './pages/CareerDescPage';
 import OAuthCallbackPage from './pages/OAuthCallbackPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 
 function ProtectedRoute() {
   const { user } = useAuth();
@@ -20,6 +21,7 @@ function ProtectedRoute() {
 
 const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
+  { path: '/privacy', element: <PrivacyPolicyPage /> },
   { path: '/oauth/callback/:provider', element: <OAuthCallbackPage /> },
   {
     element: <ProtectedRoute />,
