@@ -11,29 +11,32 @@ from services.json_db import SmartPath
 # ── 플랜별 월간 한도 ──────────────────────────────
 PLAN_LIMITS = {
     "free": {
-        "resume_generate": 3,
-        "cover_letter": 5,
-        "career_desc": 2,
-        "interview_set": 3,
-        "interview_eval": 10,
-        "portfolio_parse": 5,
+        "resume_generate": 1,       # 맛보기 1회
+        "cover_letter": 2,          # 맛보기 2회
+        "career_desc": 1,           # 맛보기 1회
+        "interview_set": 1,         # 맛보기 1회
+        "interview_eval": 3,        # 맛보기 3회
+        "portfolio_parse": 2,       # 맛보기 2회
     },
-    "pro": {
+    # Free 합계: 10회/월 → 원가 ₩400/유저 (마케팅비)
+    "pro": {                        # ₩15,000/월
+        "resume_generate": 10,
+        "cover_letter": 15,
+        "career_desc": 10,
+        "interview_set": 5,
+        "interview_eval": 30,
+        "portfolio_parse": 10,
+    },
+    # Pro 합계: 80회/월 → 원가 ₩3,200/유저, 수익 ₩11,800
+    "max": {                        # ₩29,900/월
         "resume_generate": 30,
         "cover_letter": 50,
         "career_desc": 30,
-        "interview_set": 20,
+        "interview_set": 15,
         "interview_eval": 100,
-        "portfolio_parse": 50,
+        "portfolio_parse": 30,
     },
-    "max": {
-        "resume_generate": 100,
-        "cover_letter": 200,
-        "career_desc": 100,
-        "interview_set": 50,
-        "interview_eval": 300,
-        "portfolio_parse": 200,
-    },
+    # Max 합계: 255회/월 → 원가 ₩10,200/유저, 수익 ₩19,700
 }
 
 # 카테고리 한국어 이름 (에러 메시지용)

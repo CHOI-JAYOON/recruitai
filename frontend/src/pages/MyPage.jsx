@@ -1652,9 +1652,9 @@ export default function MyPage() {
       const planNames = { free: 'Free', pro: 'Pro', max: 'Max' };
       const planColors = { free: 'bg-gray-100 text-gray-600', pro: 'bg-blue-100 text-blue-700', max: 'bg-purple-100 text-purple-700' };
       const limits = {
-        free: { resume_generate: 3, cover_letter: 5, career_desc: 2, interview_set: 3, interview_eval: 10, portfolio_parse: 5 },
-        pro: { resume_generate: 30, cover_letter: 50, career_desc: 30, interview_set: 20, interview_eval: 100, portfolio_parse: 50 },
-        max: { resume_generate: 100, cover_letter: 200, career_desc: 100, interview_set: 50, interview_eval: 300, portfolio_parse: 200 },
+        free: { resume_generate: 1, cover_letter: 2, career_desc: 1, interview_set: 1, interview_eval: 3, portfolio_parse: 2 },
+        pro: { resume_generate: 10, cover_letter: 15, career_desc: 10, interview_set: 5, interview_eval: 30, portfolio_parse: 10 },
+        max: { resume_generate: 30, cover_letter: 50, career_desc: 30, interview_set: 15, interview_eval: 100, portfolio_parse: 30 },
       };
       const categoryLabels = { resume_generate: '이력서 생성', cover_letter: '자소서 답변', career_desc: '경력기술서', interview_set: '면접 질문', interview_eval: '면접 평가', portfolio_parse: '포트폴리오 파싱' };
       const myLimits = limits[plan] || limits.free;
