@@ -119,6 +119,13 @@ export default function Layout({ children }) {
                   <span className="text-primary text-xs font-bold">{(user?.display_name || user?.username)?.charAt(0)?.toUpperCase()}</span>
                 </div>
                 <span className="text-sm font-medium text-gray-700 hidden sm:block">{user?.display_name || user?.username}</span>
+                {user?.plan && (
+                  <span className={`hidden sm:inline text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                    user.plan === 'max' ? 'bg-purple-100 text-purple-700' :
+                    user.plan === 'pro' ? 'bg-blue-100 text-blue-700' :
+                    'bg-gray-100 text-gray-500'
+                  }`}>{user.plan === 'max' ? 'MAX' : user.plan === 'pro' ? 'PRO' : 'FREE'}</span>
+                )}
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400 hidden sm:block">
                   <polyline points="6 9 12 15 18 9" />
                 </svg>
@@ -135,6 +142,18 @@ export default function Layout({ children }) {
                     </svg>
                     마이페이지
                   </button>
+                  {user?.role === 'admin' && (
+                    <button
+                      onClick={() => { setMenuOpen(false); navigate('/admin'); }}
+                      className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition flex items-center gap-2"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                      관리자
+                    </button>
+                  )}
                   <div className="border-t border-gray-100 my-1" />
                   <button
                     onClick={() => { setMenuOpen(false); handleLogout(); }}
@@ -195,7 +214,10 @@ export default function Layout({ children }) {
       <footer className="border-t border-gray-200 dark:border-gray-700 py-6">
         <div className="max-w-5xl mx-auto px-4 sm:px-5 flex items-center justify-between text-xs text-gray-400">
           <span>&copy; 2025 RecruitAI</span>
-          <a href="/privacy" className="hover:text-gray-600 dark:hover:text-gray-300 transition-colors">개인정보처리방침</a>
+          <div className="flex gap-4">
+            <a href="/pricing" className="hover:text-gray-600 dark:hover:text-gray-300 transition-colors">요금제</a>
+            <a href="/privacy" className="hover:text-gray-600 dark:hover:text-gray-300 transition-colors">개인정보처리방침</a>
+          </div>
         </div>
       </footer>
     </div>

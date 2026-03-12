@@ -1,4 +1,5 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useCallback } from 'react';
+import api from '../api/client';
 
 const AuthContext = createContext(null);
 
@@ -8,7 +9,6 @@ export function AuthProvider({ children }) {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        // If token was stored inside user object, extract it
         if (parsed.token && !localStorage.getItem('token')) {
           localStorage.setItem('token', parsed.token);
           const { token, ...clean } = parsed;
@@ -26,7 +26,6 @@ export function AuthProvider({ children }) {
   });
 
   const login = (userData) => {
-    // Extract and store JWT token separately
     const { token, ...userInfo } = userData;
     if (token) {
       localStorage.setItem('token', token);
@@ -43,17 +42,31 @@ export function AuthProvider({ children }) {
     });
   };
 
+  const refreshUser = useCallback(async () => {
+    try {
+      const res = await api.get('/auth/me');
+      const { usage, ...userInfo } = res.data;
+      setUser(prev => {
+        const next = { ...prev, ...userInfo };
+        localStorage.setItem('user', JSON.stringify(next));
+        return next;
+      });
+      return res.data;
+    } catch {
+      return null;
+    }
+  }, []);
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
     localStorage.removeItem('token');
-    localStorage.removeItem('apiKey');
     localStorage.removeItem('recruitai_primary_resumes');
     localStorage.removeItem('recruitai_primary_career_descs');
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, updateUser, logout }}>
+    <AuthContext.Provider value={{ user, login, updateUser, refreshUser, logout }}>
       {children}
     </AuthContext.Provider>
   );

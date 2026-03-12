@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Header, Query, Depends
+from fastapi import APIRouter, HTTPException, Query, Depends
 from pydantic import BaseModel, Field
 from models.portfolio import Portfolio
 from services.storage import StorageService
@@ -6,6 +6,7 @@ from services.vector_store import VectorStoreService
 from agents.portfolio_parser_agent import PortfolioParserAgent
 from services.openai_client import get_openai_client
 from services.jwt_service import get_current_user
+from services.subscription import usage_tracker
 
 router = APIRouter()
 storage = StorageService()
@@ -43,51 +44,60 @@ def get_portfolio(portfolio_id: str, current_user: dict = Depends(get_current_us
 
 
 @router.post("")
-def create_portfolio(portfolio: Portfolio, current_user: dict = Depends(get_current_user), x_api_key: str = Header(default="")):
+def create_portfolio(portfolio: Portfolio, current_user: dict = Depends(get_current_user)):
     portfolio.username = current_user["username"]
     storage.save(portfolio)
-    if x_api_key:
-        vs = VectorStoreService(x_api_key)
+    try:
+        vs = VectorStoreService()
         vs.upsert_portfolio(portfolio)
+    except Exception:
+        pass
     return portfolio
 
 
 @router.post("/bulk")
-def create_portfolios_bulk(portfolios: list[Portfolio], current_user: dict = Depends(get_current_user), x_api_key: str = Header(default="")):
+def create_portfolios_bulk(portfolios: list[Portfolio], current_user: dict = Depends(get_current_user)):
     """Save multiple portfolios at once (single read-write cycle)."""
     for p in portfolios:
         p.username = current_user["username"]
     saved = storage.save_bulk(portfolios)
-    if x_api_key and saved:
-        vs = VectorStoreService(x_api_key)
+    try:
+        vs = VectorStoreService()
         for p in saved:
             vs.upsert_portfolio(p)
+    except Exception:
+        pass
     return saved
 
 
 @router.put("/{portfolio_id}")
-def update_portfolio(portfolio_id: str, portfolio: Portfolio, current_user: dict = Depends(get_current_user), x_api_key: str = Header(default="")):
+def update_portfolio(portfolio_id: str, portfolio: Portfolio, current_user: dict = Depends(get_current_user)):
     portfolio.id = portfolio_id
     portfolio.username = current_user["username"]
     storage.save(portfolio)
-    if x_api_key:
-        vs = VectorStoreService(x_api_key)
+    try:
+        vs = VectorStoreService()
         vs.upsert_portfolio(portfolio)
+    except Exception:
+        pass
     return portfolio
 
 
 @router.delete("/{portfolio_id}")
-def delete_portfolio(portfolio_id: str, current_user: dict = Depends(get_current_user), x_api_key: str = Header(default="")):
+def delete_portfolio(portfolio_id: str, current_user: dict = Depends(get_current_user)):
     storage.delete(portfolio_id)
-    if x_api_key:
-        vs = VectorStoreService(x_api_key)
+    try:
+        vs = VectorStoreService()
         vs.delete_portfolio(portfolio_id)
+    except Exception:
+        pass
     return {"message": "삭제됨"}
 
 
 @router.post("/parse")
-def parse_portfolio(req: ParseRequest, current_user: dict = Depends(get_current_user), x_api_key: str = Header(...)):
-    client = get_openai_client(x_api_key)
+def parse_portfolio(req: ParseRequest, current_user: dict = Depends(get_current_user)):
+    usage_tracker.check_and_increment(current_user["username"], "portfolio_parse", current_user["plan"], current_user["role"])
+    client = get_openai_client()
     agent = PortfolioParserAgent(client)
     parsed = agent.parse(req.text)
     return [p.model_dump() for p in parsed]

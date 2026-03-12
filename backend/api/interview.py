@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Header, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from agents.interview_coach_agent import InterviewCoachAgent
 from models.interview import InterviewQuestion
@@ -6,6 +6,7 @@ from services.openai_client import get_openai_client
 from services.storage import StorageService
 from services.interview_history_storage import InterviewHistoryStorage
 from services.jwt_service import get_current_user
+from services.subscription import usage_tracker
 
 router = APIRouter()
 storage = StorageService()
@@ -33,9 +34,10 @@ class SaveSessionRequest(BaseModel):
 
 
 @router.post("/generate-questions")
-def generate_questions(req: GenQuestionsRequest, current_user: dict = Depends(get_current_user), x_api_key: str = Header(...)):
+def generate_questions(req: GenQuestionsRequest, current_user: dict = Depends(get_current_user)):
+    usage_tracker.check_and_increment(current_user["username"], "interview_set", current_user["plan"], current_user["role"])
     portfolios = storage.load_all(username=current_user["username"])
-    client = get_openai_client(x_api_key)
+    client = get_openai_client()
     agent = InterviewCoachAgent(client)
     questions = agent.generate_questions(
         portfolios, req.job_description, req.count,
@@ -46,9 +48,10 @@ def generate_questions(req: GenQuestionsRequest, current_user: dict = Depends(ge
 
 
 @router.post("/evaluate")
-def evaluate_answer(req: EvalRequest, current_user: dict = Depends(get_current_user), x_api_key: str = Header(...)):
+def evaluate_answer(req: EvalRequest, current_user: dict = Depends(get_current_user)):
+    usage_tracker.check_and_increment(current_user["username"], "interview_eval", current_user["plan"], current_user["role"])
     portfolios = storage.load_all(username=current_user["username"])
-    client = get_openai_client(x_api_key)
+    client = get_openai_client()
     agent = InterviewCoachAgent(client)
     feedback = agent.evaluate_answer(req.question, req.user_answer, portfolios)
     return feedback.model_dump()

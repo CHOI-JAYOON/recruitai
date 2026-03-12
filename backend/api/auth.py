@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel, Field
 from services.auth import AuthService
 from services.jwt_service import create_token, get_current_user
+from services.subscription import usage_tracker
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from config.settings import (
@@ -33,7 +34,7 @@ def login(request: Request, req: LoginRequest):
     user = auth_service.login(req.username, req.password)
     if not user:
         raise HTTPException(status_code=401, detail="아이디 또는 비밀번호가 올바르지 않습니다.")
-    token = create_token(user["username"], user["display_name"], user.get("email", ""), user.get("provider", "local"))
+    token = create_token(user["username"], user["display_name"], user.get("email", ""), user.get("provider", "local"), user.get("role", "user"), user.get("plan", "free"))
     return {**user, "token": token}
 
 
@@ -50,8 +51,11 @@ def register(request: Request, req: RegisterRequest):
     success = auth_service.register(req.username, req.password, req.display_name, req.email)
     if not success:
         raise HTTPException(status_code=409, detail="이미 존재하는 아이디입니다.")
-    token = create_token(req.username, req.display_name, req.email)
-    return {"message": "회원가입 완료", "token": token, "username": req.username, "display_name": req.display_name, "email": req.email}
+    user_info = auth_service.get_user_info(req.username)
+    role = user_info["role"] if user_info else "user"
+    plan = user_info["plan"] if user_info else "free"
+    token = create_token(req.username, req.display_name, req.email, "local", role, plan)
+    return {"message": "회원가입 완료", "token": token, "username": req.username, "display_name": req.display_name, "email": req.email, "role": role, "plan": plan}
 
 
 class ChangePasswordRequest(BaseModel):
@@ -176,7 +180,7 @@ async def oauth_kakao(req: OAuthKakaoRequest):
     nickname = kakao_account.get("profile", {}).get("nickname", f"kakao_{provider_id}")
 
     user = auth_service.find_or_create_oauth_user("kakao", provider_id, email, nickname)
-    token = create_token(user["username"], user["display_name"], user.get("email", ""), "kakao")
+    token = create_token(user["username"], user["display_name"], user.get("email", ""), "kakao", user.get("role", "user"), user.get("plan", "free"))
     return {**user, "token": token}
 
 
@@ -217,5 +221,17 @@ async def oauth_naver(req: OAuthNaverRequest):
     name = naver_data.get("name", naver_data.get("nickname", f"naver_{provider_id}"))
 
     user = auth_service.find_or_create_oauth_user("naver", provider_id, email, name)
-    token = create_token(user["username"], user["display_name"], user.get("email", ""), "naver")
+    token = create_token(user["username"], user["display_name"], user.get("email", ""), "naver", user.get("role", "user"), user.get("plan", "free"))
     return {**user, "token": token}
+
+
+# ── 유저 정보 + 사용량 ──
+
+@router.get("/me")
+def get_me(current_user: dict = Depends(get_current_user)):
+    """현재 유저 정보 + 이번 달 사용량 반환"""
+    user_info = auth_service.get_user_info(current_user["username"])
+    if not user_info:
+        raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
+    usage = usage_tracker.get_usage(current_user["username"])
+    return {**user_info, "usage": usage}

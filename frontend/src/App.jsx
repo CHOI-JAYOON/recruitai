@@ -12,6 +12,8 @@ import InterviewPage from './pages/InterviewPage';
 import CareerDescPage from './pages/CareerDescPage';
 import OAuthCallbackPage from './pages/OAuthCallbackPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import PricingPage from './pages/PricingPage';
+import AdminPage from './pages/AdminPage';
 
 function ProtectedRoute() {
   const { user } = useAuth();
@@ -22,6 +24,7 @@ function ProtectedRoute() {
 const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
   { path: '/privacy', element: <PrivacyPolicyPage /> },
+  { path: '/pricing', element: <PricingPage /> },
   { path: '/oauth/callback/:provider', element: <OAuthCallbackPage /> },
   {
     element: <ProtectedRoute />,
@@ -32,6 +35,7 @@ const router = createBrowserRouter([
       { path: '/cover-letter', element: <CoverLetterPage /> },
       { path: '/interview', element: <InterviewPage /> },
       { path: '/career-description', element: <CareerDescPage /> },
+      { path: '/admin', element: <AdminPage /> },
     ],
   },
   { path: '*', element: <Navigate to="/" replace /> },

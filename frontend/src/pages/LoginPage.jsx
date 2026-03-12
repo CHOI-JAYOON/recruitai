@@ -428,7 +428,9 @@ export default function LoginPage() {
         </div>
       </div>
       {/* Footer */}
-      <div className="absolute bottom-4 left-0 right-0 text-center">
+      <div className="absolute bottom-4 left-0 right-0 text-center flex items-center justify-center gap-3">
+        <a href="/pricing" className="text-[11px] text-gray-400 hover:text-gray-600 transition">요금제</a>
+        <span className="text-gray-300">|</span>
         <a href="/privacy" className="text-[11px] text-gray-400 hover:text-gray-600 transition">개인정보처리방침</a>
       </div>
     </div>

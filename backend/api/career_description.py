@@ -1,6 +1,6 @@
 from urllib.parse import quote
 
-from fastapi import APIRouter, Header, Query, Depends
+from fastapi import APIRouter, Query, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from agents.career_description_agent import CareerDescriptionAgent
@@ -10,6 +10,7 @@ from services.profile_storage import ProfileStorage
 from services.document_generator import DocumentGenerator
 from services.career_desc_history_storage import CareerDescHistoryStorage
 from services.jwt_service import get_current_user
+from services.subscription import usage_tracker
 from models.career_description import CareerDescription
 
 router = APIRouter()
@@ -28,11 +29,12 @@ class DownloadFromHistoryRequest(BaseModel):
 
 
 @router.post("/generate")
-def generate_career_description(req: GenerateRequest, current_user: dict = Depends(get_current_user), x_api_key: str = Header(...)):
+def generate_career_description(req: GenerateRequest, current_user: dict = Depends(get_current_user)):
     username = current_user["username"]
+    usage_tracker.check_and_increment(username, "career_desc", current_user["plan"], current_user["role"])
     profile = profile_storage.load(username)
     portfolios = storage.get_by_ids(req.selected_portfolio_ids) if req.selected_portfolio_ids else storage.list_all()
-    client = get_openai_client(x_api_key)
+    client = get_openai_client()
     agent = CareerDescriptionAgent(client)
     result = agent.generate(profile, portfolios, req.target_role)
     result_dict = result.model_dump()
@@ -49,11 +51,12 @@ def generate_career_description(req: GenerateRequest, current_user: dict = Depen
 
 
 @router.post("/download")
-def download_career_description(req: GenerateRequest, current_user: dict = Depends(get_current_user), x_api_key: str = Header(...)):
+def download_career_description(req: GenerateRequest, current_user: dict = Depends(get_current_user)):
     username = current_user["username"]
+    usage_tracker.check_and_increment(username, "career_desc", current_user["plan"], current_user["role"])
     profile = profile_storage.load(username)
     portfolios = storage.get_by_ids(req.selected_portfolio_ids) if req.selected_portfolio_ids else storage.list_all()
-    client = get_openai_client(x_api_key)
+    client = get_openai_client()
     agent = CareerDescriptionAgent(client)
     result = agent.generate(profile, portfolios, req.target_role)
 

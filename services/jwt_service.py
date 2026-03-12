@@ -9,12 +9,14 @@ JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION = 60 * 60 * 24 * 7  # 7 days
 
 
-def create_token(username: str, display_name: str = "", email: str = "", provider: str = "local") -> str:
+def create_token(username: str, display_name: str = "", email: str = "", provider: str = "local", role: str = "user", plan: str = "free") -> str:
     payload = {
         "sub": username,
         "display_name": display_name,
         "email": email,
         "provider": provider,
+        "role": role,
+        "plan": plan,
         "iat": int(time.time()),
         "exp": int(time.time()) + JWT_EXPIRATION,
     }
@@ -47,4 +49,6 @@ def get_current_user(authorization: str = Header(default="")) -> dict:
         "display_name": payload.get("display_name", ""),
         "email": payload.get("email", ""),
         "provider": payload.get("provider", "local"),
+        "role": payload.get("role", "user"),
+        "plan": payload.get("plan", "free"),
     }

@@ -4,7 +4,7 @@ import { useToast } from '../contexts/ToastContext';
 import api from '../api/client';
 import LoadingSpinner from '../components/LoadingSpinner';
 import LoadingWithAd from '../components/LoadingWithAd';
-import ApiKeyModal, { useApiKeyCheck } from '../components/ApiKeyModal';
+import UpgradePlanModal from '../components/UpgradePlanModal';
 
 const steps = [
   { num: 1, label: '직무 · 포트폴리오 선택' },
@@ -14,7 +14,7 @@ const steps = [
 export default function ResumePage() {
   const { user } = useAuth();
   const toast = useToast();
-  const { showModal, setShowModal, checkApiKey } = useApiKeyCheck();
+
   const [portfolios, setPortfolios] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const [targetRole, setTargetRole] = useState('');
@@ -36,7 +36,6 @@ export default function ResumePage() {
   };
 
   const handleGenerate = async () => {
-    if (!checkApiKey()) return;
     setGenerating(true);
     setResult(null);
     try {
@@ -243,7 +242,7 @@ export default function ResumePage() {
           </div>
         </div>
       )}
-      <ApiKeyModal open={showModal} onClose={() => setShowModal(false)} onSave={() => setShowModal(false)} />
+      <UpgradePlanModal />
     </div>
   );
 }

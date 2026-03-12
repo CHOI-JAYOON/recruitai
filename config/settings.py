@@ -21,7 +21,7 @@ APPLICATIONS_JSON_PATH = SmartPath(DATA_DIR / "applications.json", "{}")
 CAREER_DESC_HISTORY_JSON_PATH = SmartPath(DATA_DIR / "career_desc_history.json", "{}")
 INTERVIEW_HISTORY_JSON_PATH = SmartPath(DATA_DIR / "interview_history.json", "{}")
 
-DEFAULT_MODEL = "gpt-4o"
+DEFAULT_MODEL = "gpt-4.1"
 EMBEDDING_MODEL = "text-embedding-3-small"
 
 CHROMA_COLLECTION_NAME = "portfolios"

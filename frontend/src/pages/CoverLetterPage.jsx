@@ -5,7 +5,7 @@ import { useToast } from '../contexts/ToastContext';
 import api from '../api/client';
 import LoadingSpinner from '../components/LoadingSpinner';
 import LoadingWithAd from '../components/LoadingWithAd';
-import ApiKeyModal, { useApiKeyCheck } from '../components/ApiKeyModal';
+import UpgradePlanModal from '../components/UpgradePlanModal';
 
 // Word-level diff: highlights new/changed words in the refined answer
 function diffHighlight(oldText, newText) {
@@ -40,7 +40,7 @@ export default function CoverLetterPage() {
   const { user } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
-  const { showModal, setShowModal, checkApiKey } = useApiKeyCheck();
+
   const [jobDesc, setJobDesc] = useState('');
   const [company, setCompany] = useState('');
   const [questions, setQuestions] = useState([
@@ -91,7 +91,6 @@ export default function CoverLetterPage() {
   };
 
   const generateAnswer = async (idx) => {
-    if (!checkApiKey()) return;
     const q = questions[idx];
     if (!q.text.trim()) return;
     updateQuestion(idx, 'loading', true);
@@ -440,7 +439,7 @@ export default function CoverLetterPage() {
           </button>
         </div>
       )}
-      <ApiKeyModal open={showModal} onClose={() => setShowModal(false)} onSave={() => setShowModal(false)} />
+      <UpgradePlanModal />
     </div>
   );
 }

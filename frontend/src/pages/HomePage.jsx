@@ -6,7 +6,7 @@ import { useToast } from '../contexts/ToastContext';
 import ConfirmModal from '../components/ConfirmModal';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { SkeletonDashboard } from '../components/Skeleton';
-import ApiKeyModal, { useApiKeyCheck } from '../components/ApiKeyModal';
+import UpgradePlanModal from '../components/UpgradePlanModal';
 import ResumeUploadModal from '../components/ResumeUploadModal';
 
 const emptyPortfolio = {
@@ -69,7 +69,7 @@ export default function HomePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const toast = useToast();
-  const { showModal, setShowModal, checkApiKey } = useApiKeyCheck();
+
   const [portfolios, setPortfolios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ portfolio: 0, resume: 0, coverletter: 0, careerdesc: 0, interview: 0 });
@@ -168,7 +168,6 @@ export default function HomePage() {
   };
 
   const handleParse = async () => {
-    if (!checkApiKey()) return;
     if (!parseText.trim()) return;
     setParsing(true);
     try {
@@ -579,7 +578,7 @@ export default function HomePage() {
             </div>
           </div>
         )}
-        <ApiKeyModal open={showModal} onClose={() => setShowModal(false)} onSave={() => setShowModal(false)} />
+        <UpgradePlanModal />
       </div>
     );
   }
@@ -677,7 +676,7 @@ export default function HomePage() {
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-[22px] font-extrabold text-[#191f28]">내 포트폴리오 & 경력</h2>
                 <div className="flex gap-2">
-                  <button onClick={() => { if (checkApiKey()) setShowResumeUpload(true); }}
+                  <button onClick={() => { setShowResumeUpload(true); }}
                     className="px-3.5 py-2 text-[13px] font-semibold text-[#3182f6] bg-[#3182f6]/8 rounded-xl hover:bg-[#3182f6]/15 transition flex items-center gap-1.5">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
                     이력서 업로드
@@ -838,7 +837,7 @@ export default function HomePage() {
 
       <ConfirmModal open={!!deleteTarget} title="포트폴리오 삭제" message="이 포트폴리오를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
         onConfirm={handleDelete} onCancel={() => setDeleteTarget(null)} />
-      <ApiKeyModal open={showModal} onClose={() => setShowModal(false)} onSave={() => setShowModal(false)} />
+      <UpgradePlanModal />
       <ResumeUploadModal open={showResumeUpload} onClose={() => setShowResumeUpload(false)} onResult={handleResumeResult} />
     </div>
   );

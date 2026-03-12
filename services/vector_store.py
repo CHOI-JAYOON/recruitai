@@ -1,3 +1,4 @@
+import os
 import chromadb
 from chromadb.utils.embedding_functions import OpenAIEmbeddingFunction
 from models.portfolio import Portfolio
@@ -5,9 +6,10 @@ from config.settings import CHROMA_DB_PATH, CHROMA_COLLECTION_NAME, EMBEDDING_MO
 
 
 class VectorStoreService:
-    def __init__(self, openai_api_key: str):
+    def __init__(self, openai_api_key: str = ""):
+        api_key = openai_api_key or os.getenv("OPENAI_API_KEY", "")
         self.embedding_fn = OpenAIEmbeddingFunction(
-            api_key=openai_api_key,
+            api_key=api_key,
             model_name=EMBEDDING_MODEL,
         )
         CHROMA_DB_PATH.parent.mkdir(parents=True, exist_ok=True)

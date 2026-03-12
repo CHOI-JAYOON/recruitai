@@ -5,7 +5,7 @@ import { useToast } from '../contexts/ToastContext';
 import api from '../api/client';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ConfirmModal from '../components/ConfirmModal';
-import ApiKeyModal, { useApiKeyCheck } from '../components/ApiKeyModal';
+import UpgradePlanModal from '../components/UpgradePlanModal';
 import ResumeUploadModal from '../components/ResumeUploadModal';
 
 const schoolTypes = ['고등학교', '대학교', '대학원'];
@@ -38,7 +38,7 @@ export default function MyPage() {
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'profile');
   const [editing, setEditing] = useState(false);
-  const [apiKey, setApiKey] = useState(() => localStorage.getItem('apiKey') || '');
+  const [usageData, setUsageData] = useState({});
   const [coverLetters, setCoverLetters] = useState([]);
   const [expandedCL, setExpandedCL] = useState(null);
   const [resumes, setResumes] = useState([]);
@@ -78,7 +78,6 @@ export default function MyPage() {
   const [appForm, setAppForm] = useState(null);
   const [appSaving, setAppSaving] = useState(false);
   const [appDeleteTarget, setAppDeleteTarget] = useState(null);
-  const { showModal: showApiKeyModal, setShowModal: setShowApiKeyModal, checkApiKey } = useApiKeyCheck();
   const [showResumeUpload, setShowResumeUpload] = useState(false);
 
   // Cover letter folder state
@@ -97,7 +96,7 @@ export default function MyPage() {
     { id: 'resume', label: '이력서' },
     { id: 'coverletter', label: '자소서' },
     { id: 'account', label: '계정' },
-    { id: 'apikey', label: 'API 키' },
+    { id: 'subscription', label: '구독' },
   ];
 
   useEffect(() => {
@@ -106,6 +105,7 @@ export default function MyPage() {
     loadApplications();
     loadResumes();
     loadCareerDescs();
+    loadUsage();
   }, []);
 
   // Auto-delete resumes/career descs older than 15 days (excluding primary)
@@ -392,9 +392,11 @@ export default function MyPage() {
     toast.success('이력서 분석이 완료되었습니다. 확인 후 저장해주세요.');
   };
 
-  const saveApiKey = () => {
-    localStorage.setItem('apiKey', apiKey);
-    toast.success('API 키가 저장되었습니다.');
+  const loadUsage = async () => {
+    try {
+      const res = await api.get('/auth/me');
+      setUsageData(res.data.usage || {});
+    } catch {}
   };
 
   const updateField = (field, value) => {
@@ -1645,33 +1647,43 @@ export default function MyPage() {
       );
     }
 
-    if (activeTab === 'apikey') {
+    if (activeTab === 'subscription') {
+      const plan = user?.plan || 'free';
+      const planNames = { free: 'Free', pro: 'Pro', max: 'Max' };
+      const planColors = { free: 'bg-gray-100 text-gray-600', pro: 'bg-blue-100 text-blue-700', max: 'bg-purple-100 text-purple-700' };
+      const limits = {
+        free: { resume_generate: 3, cover_letter: 5, career_desc: 2, interview_set: 3, interview_eval: 10, portfolio_parse: 5 },
+        pro: { resume_generate: 30, cover_letter: 50, career_desc: 30, interview_set: 20, interview_eval: 100, portfolio_parse: 50 },
+        max: { resume_generate: 100, cover_letter: 200, career_desc: 100, interview_set: 50, interview_eval: 300, portfolio_parse: 200 },
+      };
+      const categoryLabels = { resume_generate: '이력서 생성', cover_letter: '자소서 답변', career_desc: '경력기술서', interview_set: '면접 질문', interview_eval: '면접 평가', portfolio_parse: '포트폴리오 파싱' };
+      const myLimits = limits[plan] || limits.free;
+
       return (
         <div className="flex flex-col gap-5 max-w-2xl">
-          <p className="text-sm text-gray-600 leading-relaxed">
-            OpenAI API 키를 입력하면 AI 기능(포트폴리오 파싱, 이력서 생성, 자소서 작성, 면접 연습)을 사용할 수 있습니다.
-          </p>
-          <div className="bg-gray-50 rounded-xl p-5">
-            <h3 className="text-[13px] font-bold text-gray-800 mb-3">API 키 발급 방법</h3>
-            <ol className="text-sm text-gray-600 space-y-2.5 list-decimal list-inside">
-              <li><a href="https://platform.openai.com/signup" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">platform.openai.com</a>에 접속하여 회원가입 또는 로그인합니다.</li>
-              <li>좌측 메뉴에서 <span className="font-semibold text-gray-800">API keys</span>를 클릭합니다.</li>
-              <li><span className="font-semibold text-gray-800">+ Create new secret key</span> 버튼을 클릭합니다.</li>
-              <li>키 이름을 입력하고 <span className="font-semibold text-gray-800">Create secret key</span>를 클릭합니다.</li>
-              <li>생성된 키(<span className="font-mono text-xs bg-gray-200 px-1.5 py-0.5 rounded">sk-...</span>)를 복사하여 아래에 붙여넣기합니다.</li>
-            </ol>
-            <div className="mt-4 p-3.5 bg-[#fff8e6] border border-[#f5d980] rounded-xl">
-              <p className="text-xs text-[#8a6d13]">
-                <span className="font-bold">참고:</span> API 사용에는 크레딧이 필요합니다.
-                <a href="https://platform.openai.com/settings/organization/billing/overview" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline ml-1">Billing 페이지</a>에서 크레딧을 충전해주세요. 최소 $5부터 충전 가능합니다.
-              </p>
-            </div>
+          <div className="flex items-center gap-3">
+            <span className={`px-3 py-1 rounded-full text-sm font-bold ${planColors[plan]}`}>{planNames[plan]}</span>
+            <span className="text-sm text-gray-500">현재 플랜</span>
           </div>
-          <div>
-            <label className={labelClass}>API Key</label>
-            <input type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} className={`${inputClass} font-mono`} placeholder="sk-..." />
+          <div className="bg-gray-50 rounded-xl p-5 space-y-4">
+            <h3 className="text-[13px] font-bold text-gray-800">이번 달 사용량</h3>
+            {Object.entries(myLimits).map(([cat, limit]) => {
+              const used = usageData[cat] || 0;
+              const pct = Math.min((used / limit) * 100, 100);
+              return (
+                <div key={cat}>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-gray-600">{categoryLabels[cat]}</span>
+                    <span className="font-semibold text-gray-800">{used} / {limit}회</span>
+                  </div>
+                  <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div className={`h-full rounded-full transition-all ${pct >= 90 ? 'bg-red-400' : pct >= 60 ? 'bg-amber-400' : 'bg-primary'}`} style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              );
+            })}
           </div>
-          <button onClick={saveApiKey} className="w-fit px-5 py-2.5 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary-dark transition">저장</button>
+          <a href="/pricing" className="text-sm text-primary hover:underline font-medium">요금제 비교 보기 &rarr;</a>
         </div>
       );
     }
@@ -1718,7 +1730,7 @@ export default function MyPage() {
 
       <ConfirmModal open={!!appDeleteTarget} title="지원 기록 삭제" message="이 지원 기록을 삭제하시겠습니까?"
         onConfirm={deleteApp} onCancel={() => setAppDeleteTarget(null)} />
-      <ApiKeyModal open={showApiKeyModal} onClose={() => setShowApiKeyModal(false)} onSave={() => setShowApiKeyModal(false)} />
+      <UpgradePlanModal />
       <ResumeUploadModal open={showResumeUpload} onClose={() => setShowResumeUpload(false)} onResult={handleResumeResult} />
     </div>
   );

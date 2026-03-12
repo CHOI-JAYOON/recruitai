@@ -1,9 +1,10 @@
-from fastapi import APIRouter, UploadFile, File, Header, HTTPException, Depends
+from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from models.user_profile import UserProfile
 from services.profile_storage import ProfileStorage
 from services.file_parser import extract_text
 from services.openai_client import get_openai_client
 from services.jwt_service import get_current_user
+from services.subscription import usage_tracker
 from agents.resume_parser_agent import ResumeParserAgent
 import base64
 import os
@@ -58,7 +59,6 @@ async def upload_photo(username: str, file: UploadFile = File(...), current_user
 async def parse_resume(
     username: str,
     file: UploadFile = File(...),
-    x_api_key: str = Header(...),
     current_user: dict = Depends(get_current_user),
 ):
     if username != current_user["username"]:
@@ -83,7 +83,8 @@ async def parse_resume(
     if len(text) > max_chars:
         text = text[:max_chars] + "\n\n[이하 생략 - 텍스트가 너무 길어 앞부분만 분석합니다]"
 
-    client = get_openai_client(x_api_key)
+    usage_tracker.check_and_increment(username, "portfolio_parse", current_user["plan"], current_user["role"])
+    client = get_openai_client()
     agent = ResumeParserAgent(client)
     result = agent.parse(text)
     return result.model_dump()

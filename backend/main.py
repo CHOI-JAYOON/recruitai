@@ -11,7 +11,7 @@ from fastapi.responses import JSONResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
-from backend.api import auth, portfolios, profile, resume, cover_letter, interview, applications, career_description
+from backend.api import auth, portfolios, profile, resume, cover_letter, interview, applications, career_description, admin
 from services.json_db import init_db
 
 is_production = os.getenv("ENV", "").lower() == "production" or os.getenv("RENDER", "")
@@ -47,7 +47,7 @@ app.add_middleware(
     allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization", "X-Api-Key"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
@@ -58,6 +58,7 @@ app.include_router(cover_letter.router, prefix="/api/cover-letter", tags=["cover
 app.include_router(interview.router, prefix="/api/interview", tags=["interview"])
 app.include_router(applications.router, prefix="/api/applications", tags=["applications"])
 app.include_router(career_description.router, prefix="/api/career-description", tags=["career-description"])
+app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
 
 
 @app.get("/api/health")
