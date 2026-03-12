@@ -44,34 +44,9 @@ export default function AboutPage() {
   const { user } = useAuth() || {};
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-          <Link to="/" className="text-lg font-extrabold tracking-tight">
-            Recruit<span className="text-primary">AI</span>
-          </Link>
-          <div className="flex items-center gap-4">
-            {user ? (
-              <Link to="/portfolio" className="text-sm text-primary hover:underline font-semibold">
-                AI 기능 사용하기
-              </Link>
-            ) : (
-              <>
-                <Link to="/pricing" className="text-sm text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 font-medium">
-                  요금제
-                </Link>
-                <Link to="/login" className="text-sm text-white bg-primary px-4 py-1.5 rounded-lg hover:bg-primary-dark font-semibold transition">
-                  로그인
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
-      </header>
-
+    <div className="animate-fade-in">
       {/* Hero */}
-      <section className="pt-20 pb-16 text-center px-6">
+      <section className="pt-8 pb-14 text-center px-4">
         <div className="max-w-3xl mx-auto">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary text-sm font-semibold rounded-full mb-6">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -79,7 +54,7 @@ export default function AboutPage() {
             </svg>
             AI 기반 취업 준비 플랫폼
           </div>
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-white mb-5 leading-tight">
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-gray-900 dark:text-white mb-5 leading-tight">
             AI로 취업 준비를<br />
             <span className="text-primary">완성</span>하세요
           </h1>
@@ -107,7 +82,7 @@ export default function AboutPage() {
       </section>
 
       {/* Features */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-20">
+      <section className="max-w-6xl mx-auto px-4 pb-16">
         <div className="text-center mb-12">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mb-3">
             취업 준비에 필요한 모든 AI 기능
@@ -136,8 +111,8 @@ export default function AboutPage() {
       </section>
 
       {/* How it works */}
-      <section className="bg-white dark:bg-gray-800 border-t border-b border-gray-200 dark:border-gray-700 py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
+      <section className="bg-white dark:bg-gray-800 border-t border-b border-gray-200 dark:border-gray-700 py-16 -mx-4 sm:-mx-5 px-4 sm:px-5">
+        <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mb-3">
               간단한 3단계로 시작하세요
@@ -163,7 +138,7 @@ export default function AboutPage() {
       </section>
 
       {/* API Key info */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 py-20">
+      <section className="max-w-4xl mx-auto px-4 py-16">
         <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl border border-green-200 dark:border-green-800/50 p-8 sm:p-10 text-center">
           <div className="w-14 h-14 rounded-2xl bg-green-100 dark:bg-green-900/40 flex items-center justify-center mx-auto mb-5">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -190,7 +165,7 @@ export default function AboutPage() {
       </section>
 
       {/* CTA */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 pb-20 text-center">
+      <section className="max-w-4xl mx-auto px-4 pb-16 text-center">
         <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white mb-3">
           지금 바로 시작해 보세요
         </h2>
@@ -207,13 +182,6 @@ export default function AboutPage() {
           </svg>
         </Link>
       </section>
-
-      {/* Footer */}
-      <footer className="border-t border-gray-200 dark:border-gray-700 py-8">
-        <div className="max-w-4xl mx-auto px-6 text-center text-sm text-gray-400">
-          <p>&copy; 2025 RecruitAI. All rights reserved.</p>
-        </div>
-      </footer>
     </div>
   );
 }

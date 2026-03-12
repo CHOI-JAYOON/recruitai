@@ -22,11 +22,21 @@ function ProtectedRoute() {
   return <Layout><Outlet /></Layout>;
 }
 
+function PublicLayoutRoute() {
+  return <Layout><Outlet /></Layout>;
+}
+
 const router = createBrowserRouter([
-  { path: '/', element: <AboutPage /> },
   { path: '/login', element: <LoginPage /> },
   { path: '/privacy', element: <PrivacyPolicyPage /> },
   { path: '/oauth/callback/:provider', element: <OAuthCallbackPage /> },
+  {
+    element: <PublicLayoutRoute />,
+    children: [
+      { path: '/', element: <AboutPage /> },
+      { path: '/pricing', element: <PricingPage /> },
+    ],
+  },
   {
     element: <ProtectedRoute />,
     children: [
@@ -36,7 +46,6 @@ const router = createBrowserRouter([
       { path: '/cover-letter', element: <CoverLetterPage /> },
       { path: '/interview', element: <InterviewPage /> },
       { path: '/career-description', element: <CareerDescPage /> },
-      { path: '/pricing', element: <PricingPage /> },
       { path: '/admin', element: <AdminPage /> },
     ],
   },

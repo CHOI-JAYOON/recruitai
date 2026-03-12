@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -157,7 +157,7 @@ export default function Layout({ children }) {
             </NavLink>
           </nav>
 
-          {/* Theme toggle + User menu */}
+          {/* Theme toggle + User menu / Login */}
           <div className="flex items-center gap-1">
             <button
               onClick={toggleTheme}
@@ -175,6 +175,14 @@ export default function Layout({ children }) {
               )}
             </button>
 
+            {!user ? (
+              <Link
+                to="/login"
+                className="ml-1 px-4 py-1.5 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary-dark transition"
+              >
+                로그인
+              </Link>
+            ) : (
             <div className="relative shrink-0" ref={menuRef}>
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
@@ -232,6 +240,7 @@ export default function Layout({ children }) {
                 </div>
               )}
             </div>
+            )}
           </div>
         </div>
       </header>
