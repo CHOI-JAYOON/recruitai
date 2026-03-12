@@ -43,7 +43,7 @@ export default function Layout({ children }) {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/');
   };
 
   // Check if current path is an AI feature page
