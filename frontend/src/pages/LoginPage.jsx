@@ -88,7 +88,7 @@ export default function LoginPage() {
         const res = await api.post('/auth/login', { username, password });
         login(res.data);
       }
-      navigate('/');
+      navigate('/portfolio');
     } catch (err) {
       setError(err.response?.data?.detail || '오류가 발생했습니다.');
     } finally {

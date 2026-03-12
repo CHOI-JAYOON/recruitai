@@ -23,13 +23,13 @@ function ProtectedRoute() {
 }
 
 const router = createBrowserRouter([
+  { path: '/', element: <AboutPage /> },
   { path: '/login', element: <LoginPage /> },
   { path: '/privacy', element: <PrivacyPolicyPage /> },
   { path: '/oauth/callback/:provider', element: <OAuthCallbackPage /> },
   {
     element: <ProtectedRoute />,
     children: [
-      { path: '/', element: <AboutPage /> },
       { path: '/portfolio', element: <HomePage /> },
       { path: '/mypage', element: <MyPage /> },
       { path: '/resume', element: <ResumePage /> },

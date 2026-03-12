@@ -33,7 +33,7 @@ export default function OAuthCallbackPage() {
     api.post(`/auth/oauth/${provider}`, body)
       .then((res) => {
         login(res.data);
-        navigate('/', { replace: true });
+        navigate('/portfolio', { replace: true });
       })
       .catch((err) => {
         setError(err.response?.data?.detail || '소셜 로그인에 실패했습니다.');
