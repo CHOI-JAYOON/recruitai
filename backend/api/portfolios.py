@@ -4,12 +4,14 @@ from models.portfolio import Portfolio
 from services.storage import StorageService
 from services.vector_store import VectorStoreService
 from agents.portfolio_parser_agent import PortfolioParserAgent
-from services.openai_client import get_openai_client
+from services.openai_client import get_openai_client, get_user_openai_client
+from services.auth import AuthService
 from services.jwt_service import get_current_user
 from services.subscription import usage_tracker
 
 router = APIRouter()
 storage = StorageService()
+auth_service = AuthService()
 
 
 class ParseRequest(BaseModel):
@@ -96,8 +98,12 @@ def delete_portfolio(portfolio_id: str, current_user: dict = Depends(get_current
 
 @router.post("/parse")
 def parse_portfolio(req: ParseRequest, current_user: dict = Depends(get_current_user)):
-    usage_tracker.check_and_increment(current_user["username"], "portfolio_parse", current_user["plan"], current_user["role"])
-    client = get_openai_client()
+    user_key = auth_service.get_user_api_key(current_user["username"])
+    if user_key:
+        client = get_user_openai_client(user_key)
+    else:
+        usage_tracker.check_and_increment(current_user["username"], "portfolio_parse", current_user["plan"], current_user["role"])
+        client = get_openai_client()
     agent = PortfolioParserAgent(client)
     parsed = agent.parse(req.text)
     return [p.model_dump() for p in parsed]

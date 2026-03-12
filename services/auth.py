@@ -162,6 +162,7 @@ class AuthService:
             "provider": data.get("provider", "local"),
             "role": data.get("role", "user"),
             "plan": data.get("plan", "free"),
+            "has_api_key": bool(data.get("openai_api_key")),
         }
 
     def update_user_plan(self, username: str, plan: str) -> bool:
@@ -184,6 +185,30 @@ class AuthService:
         # admin이 되면 자동으로 max 플랜
         if role == "admin":
             users[username]["plan"] = "max"
+        self._save_users(users)
+        return True
+
+    # ── API Key 관리 ──────────────────────────
+
+    def save_user_api_key(self, username: str, api_key: str) -> bool:
+        users = self._load_users()
+        if username not in users:
+            return False
+        users[username]["openai_api_key"] = api_key
+        self._save_users(users)
+        return True
+
+    def get_user_api_key(self, username: str) -> str | None:
+        users = self._load_users()
+        if username not in users:
+            return None
+        return users[username].get("openai_api_key") or None
+
+    def delete_user_api_key(self, username: str) -> bool:
+        users = self._load_users()
+        if username not in users:
+            return False
+        users[username].pop("openai_api_key", None)
         self._save_users(users)
         return True
 

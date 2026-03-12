@@ -2,7 +2,8 @@ from fastapi import APIRouter, Query, Depends
 from pydantic import BaseModel
 from agents.cover_letter_agent import CoverLetterAgent
 from models.cover_letter import CoverLetterQuestion
-from services.openai_client import get_openai_client
+from services.openai_client import get_openai_client, get_user_openai_client
+from services.auth import AuthService
 from services.cover_letter_history_storage import CoverLetterHistoryStorage
 from services.profile_storage import ProfileStorage
 from services.jwt_service import get_current_user
@@ -11,6 +12,7 @@ from services.subscription import usage_tracker
 router = APIRouter()
 history_storage = CoverLetterHistoryStorage()
 profile_storage = ProfileStorage()
+auth_service = AuthService()
 
 
 class AnswerRequest(BaseModel):
@@ -49,8 +51,12 @@ def _load_resume_text(username: str) -> str:
 
 @router.post("/answer")
 def generate_answer(req: AnswerRequest, current_user: dict = Depends(get_current_user)):
-    usage_tracker.check_and_increment(current_user["username"], "cover_letter", current_user["plan"], current_user["role"])
-    client = get_openai_client()
+    user_key = auth_service.get_user_api_key(current_user["username"])
+    if user_key:
+        client = get_user_openai_client(user_key)
+    else:
+        usage_tracker.check_and_increment(current_user["username"], "cover_letter", current_user["plan"], current_user["role"])
+        client = get_openai_client()
     agent = CoverLetterAgent(client)
     q = CoverLetterQuestion(question=req.question, max_length=req.max_length)
     resume_text = _load_resume_text(current_user["username"])
@@ -67,8 +73,12 @@ def generate_answer(req: AnswerRequest, current_user: dict = Depends(get_current
 
 @router.post("/refine")
 def refine_answer(req: RefineRequest, current_user: dict = Depends(get_current_user)):
-    usage_tracker.check_and_increment(current_user["username"], "cover_letter", current_user["plan"], current_user["role"])
-    client = get_openai_client()
+    user_key = auth_service.get_user_api_key(current_user["username"])
+    if user_key:
+        client = get_user_openai_client(user_key)
+    else:
+        usage_tracker.check_and_increment(current_user["username"], "cover_letter", current_user["plan"], current_user["role"])
+        client = get_openai_client()
     agent = CoverLetterAgent(client)
     resume_text = _load_resume_text(current_user["username"])
 

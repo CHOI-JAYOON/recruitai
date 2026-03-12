@@ -2,7 +2,8 @@ from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from agents.interview_coach_agent import InterviewCoachAgent
 from models.interview import InterviewQuestion
-from services.openai_client import get_openai_client
+from services.openai_client import get_openai_client, get_user_openai_client
+from services.auth import AuthService
 from services.storage import StorageService
 from services.interview_history_storage import InterviewHistoryStorage
 from services.jwt_service import get_current_user
@@ -11,6 +12,7 @@ from services.subscription import usage_tracker
 router = APIRouter()
 storage = StorageService()
 history_storage = InterviewHistoryStorage()
+auth_service = AuthService()
 
 
 class GenQuestionsRequest(BaseModel):
@@ -35,9 +37,13 @@ class SaveSessionRequest(BaseModel):
 
 @router.post("/generate-questions")
 def generate_questions(req: GenQuestionsRequest, current_user: dict = Depends(get_current_user)):
-    usage_tracker.check_and_increment(current_user["username"], "interview_set", current_user["plan"], current_user["role"])
+    user_key = auth_service.get_user_api_key(current_user["username"])
+    if user_key:
+        client = get_user_openai_client(user_key)
+    else:
+        usage_tracker.check_and_increment(current_user["username"], "interview_set", current_user["plan"], current_user["role"])
+        client = get_openai_client()
     portfolios = storage.load_all(username=current_user["username"])
-    client = get_openai_client()
     agent = InterviewCoachAgent(client)
     questions = agent.generate_questions(
         portfolios, req.job_description, req.count,
@@ -49,9 +55,13 @@ def generate_questions(req: GenQuestionsRequest, current_user: dict = Depends(ge
 
 @router.post("/evaluate")
 def evaluate_answer(req: EvalRequest, current_user: dict = Depends(get_current_user)):
-    usage_tracker.check_and_increment(current_user["username"], "interview_eval", current_user["plan"], current_user["role"])
+    user_key = auth_service.get_user_api_key(current_user["username"])
+    if user_key:
+        client = get_user_openai_client(user_key)
+    else:
+        usage_tracker.check_and_increment(current_user["username"], "interview_eval", current_user["plan"], current_user["role"])
+        client = get_openai_client()
     portfolios = storage.load_all(username=current_user["username"])
-    client = get_openai_client()
     agent = InterviewCoachAgent(client)
     feedback = agent.evaluate_answer(req.question, req.user_answer, portfolios)
     return feedback.model_dump()

@@ -2,7 +2,8 @@ from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from models.user_profile import UserProfile
 from services.profile_storage import ProfileStorage
 from services.file_parser import extract_text
-from services.openai_client import get_openai_client
+from services.openai_client import get_openai_client, get_user_openai_client
+from services.auth import AuthService
 from services.jwt_service import get_current_user
 from services.subscription import usage_tracker
 from agents.resume_parser_agent import ResumeParserAgent
@@ -11,6 +12,7 @@ import os
 
 router = APIRouter()
 profile_storage = ProfileStorage()
+auth_service = AuthService()
 
 MAX_PHOTO_SIZE = 5 * 1024 * 1024  # 5MB
 MAX_RESUME_SIZE = 10 * 1024 * 1024  # 10MB
@@ -83,8 +85,12 @@ async def parse_resume(
     if len(text) > max_chars:
         text = text[:max_chars] + "\n\n[이하 생략 - 텍스트가 너무 길어 앞부분만 분석합니다]"
 
-    usage_tracker.check_and_increment(username, "portfolio_parse", current_user["plan"], current_user["role"])
-    client = get_openai_client()
+    user_key = auth_service.get_user_api_key(username)
+    if user_key:
+        client = get_user_openai_client(user_key)
+    else:
+        usage_tracker.check_and_increment(username, "portfolio_parse", current_user["plan"], current_user["role"])
+        client = get_openai_client()
     agent = ResumeParserAgent(client)
     result = agent.parse(text)
     return result.model_dump()

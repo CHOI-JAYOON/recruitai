@@ -224,6 +224,26 @@ export default function PricingPage() {
         </div>
       </section>
 
+      {/* API Key 무제한 사용 안내 */}
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 pb-10">
+        <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl border border-green-200 dark:border-green-800/50 p-8 text-center">
+          <div className="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/40 flex items-center justify-center mx-auto mb-4">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+            본인 API Key로 무제한 무료 사용
+          </h3>
+          <p className="text-sm text-gray-600 dark:text-gray-300 max-w-lg mx-auto mb-1 leading-relaxed">
+            OpenAI API Key를 등록하면 구독 없이도 모든 AI 기능을 <span className="font-semibold text-green-600">사용량 제한 없이 무료</span>로 이용할 수 있습니다.
+          </p>
+          <p className="text-xs text-gray-400 dark:text-gray-500">
+            마이페이지 &gt; 구독 탭에서 본인 API Key를 등록하세요.
+          </p>
+        </div>
+      </section>
+
       {/* FAQ hint */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 pb-16 text-center">
         <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-8">

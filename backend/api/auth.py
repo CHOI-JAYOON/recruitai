@@ -235,3 +235,27 @@ def get_me(current_user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
     usage = usage_tracker.get_usage(current_user["username"])
     return {**user_info, "usage": usage}
+
+
+class ApiKeyRequest(BaseModel):
+    api_key: str = Field(min_length=10, max_length=200)
+
+
+@router.put("/api-key")
+def save_api_key(req: ApiKeyRequest, current_user: dict = Depends(get_current_user)):
+    """본인 OpenAI API Key 저장"""
+    if not req.api_key.startswith("sk-"):
+        raise HTTPException(status_code=400, detail="올바른 OpenAI API Key 형식이 아닙니다. (sk-로 시작)")
+    success = auth_service.save_user_api_key(current_user["username"], req.api_key)
+    if not success:
+        raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
+    return {"message": "API Key가 저장되었습니다.", "has_api_key": True}
+
+
+@router.delete("/api-key")
+def delete_api_key(current_user: dict = Depends(get_current_user)):
+    """본인 OpenAI API Key 삭제"""
+    success = auth_service.delete_user_api_key(current_user["username"])
+    if not success:
+        raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
+    return {"message": "API Key가 삭제되었습니다.", "has_api_key": False}

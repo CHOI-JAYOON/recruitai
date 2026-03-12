@@ -321,7 +321,6 @@ export default function HomePage() {
       api.get(`/profile/${user.username}`),
     ]);
     setPortfolios(portfolioRes.data);
-    setProfile(profileRes.data);
     toast.success('이력서 분석이 완료되었습니다.');
   };
 

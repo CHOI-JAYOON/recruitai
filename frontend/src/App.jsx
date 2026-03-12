@@ -14,6 +14,7 @@ import OAuthCallbackPage from './pages/OAuthCallbackPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import PricingPage from './pages/PricingPage';
 import AdminPage from './pages/AdminPage';
+import AboutPage from './pages/AboutPage';
 
 function ProtectedRoute() {
   const { user } = useAuth();
@@ -25,6 +26,7 @@ const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
   { path: '/privacy', element: <PrivacyPolicyPage /> },
   { path: '/pricing', element: <PricingPage /> },
+  { path: '/about', element: <AboutPage /> },
   { path: '/oauth/callback/:provider', element: <OAuthCallbackPage /> },
   {
     element: <ProtectedRoute />,

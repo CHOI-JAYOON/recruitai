@@ -5,7 +5,7 @@ from typing import Type
 
 
 class BaseAgent(ABC):
-    def __init__(self, client: OpenAI, model: str = "gpt-4o"):
+    def __init__(self, client: OpenAI, model: str = "gpt-4.1-mini"):
         self.client = client
         self.model = model
 

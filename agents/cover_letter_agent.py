@@ -3,7 +3,7 @@ from models.cover_letter import CoverLetterQuestion, CoverLetterAnswer
 
 
 class CoverLetterAgent(BaseAgent):
-    def __init__(self, client, model="gpt-4o"):
+    def __init__(self, client, model="gpt-4.1-mini"):
         super().__init__(client, model)
 
     @property

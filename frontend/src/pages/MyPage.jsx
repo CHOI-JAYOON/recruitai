@@ -30,7 +30,7 @@ const emptyAward = { name: '', issuer: '', date: '', description: '' };
 const emptyTraining = { name: '', institution: '', start_date: '', end_date: '', description: '' };
 
 export default function MyPage() {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, refreshUser } = useAuth();
   const toast = useToast();
   const [searchParams] = useSearchParams();
   const [profile, setProfile] = useState(null);
@@ -82,6 +82,9 @@ export default function MyPage() {
 
   // Cover letter folder state
   const [openCompany, setOpenCompany] = useState(null);
+
+  // API Key state
+  const [apiKeyInput, setApiKeyInput] = useState('');
 
   // Account management state
   const [displayName, setDisplayName] = useState(user?.display_name || user?.username || '');
@@ -1684,6 +1687,58 @@ export default function MyPage() {
             })}
           </div>
           <a href="/pricing" className="text-sm text-primary hover:underline font-medium">요금제 비교 보기 &rarr;</a>
+
+          {/* 본인 API Key 섹션 */}
+          <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-3 mt-2">
+            <div className="flex items-center gap-2">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-500"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+              <h3 className="text-[13px] font-bold text-gray-800">본인 OpenAI API Key</h3>
+            </div>
+            <p className="text-xs text-gray-500">본인 API Key를 등록하면 <span className="font-semibold text-primary">사용량 제한 없이 무료</span>로 모든 AI 기능을 이용할 수 있습니다.</p>
+            {user?.has_api_key ? (
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1.5 text-sm font-semibold text-green-600">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                  API Key 등록됨
+                </span>
+                <button
+                  onClick={async () => {
+                    if (!window.confirm('API Key를 삭제하시겠습니까? 삭제 후 서버 키 + 사용량 제한이 적용됩니다.')) return;
+                    try {
+                      await api.delete('/auth/api-key');
+                      refreshUser();
+                      toast.success('API Key가 삭제되었습니다.');
+                    } catch { toast.error('삭제 실패'); }
+                  }}
+                  className="text-xs text-red-500 hover:text-red-700 font-medium"
+                >삭제</button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <input
+                  type="password"
+                  placeholder="sk-..."
+                  value={apiKeyInput}
+                  onChange={(e) => setApiKeyInput(e.target.value)}
+                  className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                />
+                <button
+                  onClick={async () => {
+                    if (!apiKeyInput.startsWith('sk-')) { toast.error('sk-로 시작하는 올바른 키를 입력하세요.'); return; }
+                    try {
+                      await api.put('/auth/api-key', { api_key: apiKeyInput });
+                      setApiKeyInput('');
+                      refreshUser();
+                      toast.success('API Key가 저장되었습니다!');
+                    } catch (e) { toast.error(e.response?.data?.detail || '저장 실패'); }
+                  }}
+                  disabled={!apiKeyInput}
+                  className="px-4 py-2 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary-dark transition disabled:opacity-50"
+                >저장</button>
+              </div>
+            )}
+            <p className="text-[11px] text-gray-400">API Key는 안전하게 저장됩니다. <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">OpenAI에서 발급받기</a></p>
+          </div>
         </div>
       );
     }

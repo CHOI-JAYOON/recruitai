@@ -4,7 +4,8 @@ from fastapi import APIRouter, Query, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from agents.resume_writer_agent import ResumeWriterAgent
-from services.openai_client import get_openai_client
+from services.openai_client import get_openai_client, get_user_openai_client
+from services.auth import AuthService
 from services.storage import StorageService
 from services.profile_storage import ProfileStorage
 from services.document_generator import DocumentGenerator
@@ -17,6 +18,7 @@ router = APIRouter()
 storage = StorageService()
 profile_storage = ProfileStorage()
 history_storage = ResumeHistoryStorage()
+auth_service = AuthService()
 
 
 class GenerateRequest(BaseModel):
@@ -31,10 +33,14 @@ class DownloadFromHistoryRequest(BaseModel):
 @router.post("/generate")
 def generate_resume(req: GenerateRequest, current_user: dict = Depends(get_current_user)):
     username = current_user["username"]
-    usage_tracker.check_and_increment(username, "resume_generate", current_user["plan"], current_user["role"])
+    user_key = auth_service.get_user_api_key(username)
+    if user_key:
+        client = get_user_openai_client(user_key)
+    else:
+        usage_tracker.check_and_increment(username, "resume_generate", current_user["plan"], current_user["role"])
+        client = get_openai_client()
     profile = profile_storage.load(username)
     portfolios = storage.get_by_ids(req.selected_portfolio_ids)
-    client = get_openai_client()
     agent = ResumeWriterAgent(client)
     tailored = agent.tailor(portfolios, req.target_role, profile)
     result = tailored.model_dump()
@@ -78,10 +84,14 @@ def rename_history(record_id: str, req: RenameRequest, current_user: dict = Depe
 @router.post("/download")
 def download_resume(req: GenerateRequest, current_user: dict = Depends(get_current_user)):
     username = current_user["username"]
-    usage_tracker.check_and_increment(username, "resume_generate", current_user["plan"], current_user["role"])
+    user_key = auth_service.get_user_api_key(username)
+    if user_key:
+        client = get_user_openai_client(user_key)
+    else:
+        usage_tracker.check_and_increment(username, "resume_generate", current_user["plan"], current_user["role"])
+        client = get_openai_client()
     profile = profile_storage.load(username)
     portfolios = storage.get_by_ids(req.selected_portfolio_ids)
-    client = get_openai_client()
     agent = ResumeWriterAgent(client)
     tailored = agent.tailor(portfolios, req.target_role, profile)
     doc_gen = DocumentGenerator()

@@ -13,3 +13,8 @@ def get_openai_client() -> OpenAI:
             raise RuntimeError("OPENAI_API_KEY 환경변수가 설정되지 않았습니다.")
         _client = OpenAI(api_key=api_key)
     return _client
+
+
+def get_user_openai_client(api_key: str) -> OpenAI:
+    """유저 본인의 API Key로 임시 OpenAI 클라이언트 생성."""
+    return OpenAI(api_key=api_key)
