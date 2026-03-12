@@ -16,7 +16,17 @@ const AI_PATHS = [
 
 api.interceptors.request.use((config) => {
   // Attach JWT token to all authenticated requests
-  const token = localStorage.getItem('token');
+  let token = localStorage.getItem('token');
+  // Fallback: check if token is stored inside user object
+  if (!token) {
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (user.token) {
+        token = user.token;
+        localStorage.setItem('token', token);
+      }
+    } catch {}
+  }
   if (token) {
     config.headers['Authorization'] = `Bearer ${token}`;
   }

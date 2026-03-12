@@ -7,7 +7,15 @@ export function AuthProvider({ children }) {
     const saved = localStorage.getItem('user');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        // If token was stored inside user object, extract it
+        if (parsed.token && !localStorage.getItem('token')) {
+          localStorage.setItem('token', parsed.token);
+          const { token, ...clean } = parsed;
+          localStorage.setItem('user', JSON.stringify(clean));
+          return clean;
+        }
+        return parsed;
       } catch {
         localStorage.removeItem('user');
         localStorage.removeItem('token');
