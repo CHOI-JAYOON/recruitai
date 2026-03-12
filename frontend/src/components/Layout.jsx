@@ -8,7 +8,7 @@ const aiFeatures = [
   { path: '/cover-letter', label: '자소서 작성', icon: 'M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7|M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z' },
   { path: '/career-description', label: '경력기술서', icon: 'M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2|M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1z' },
   { path: '/interview', label: '면접 연습', icon: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z' },
-  { path: '/', label: '포트폴리오', icon: 'M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z', end: true },
+  { path: '/portfolio', label: '포트폴리오', icon: 'M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z' },
 ];
 
 export default function Layout({ children }) {
@@ -48,7 +48,7 @@ export default function Layout({ children }) {
 
   // Check if current path is an AI feature page
   const isAiFeaturePage = aiFeatures.some(f =>
-    f.end ? location.pathname === f.path : location.pathname.startsWith(f.path)
+    location.pathname.startsWith(f.path)
   );
 
   return (
@@ -78,6 +78,24 @@ export default function Layout({ children }) {
 
           {/* Nav tabs - center (hidden on mobile) */}
           <nav className="hidden md:flex items-center gap-1">
+            {/* 소개 */}
+            <NavLink
+              to="/"
+              end
+              className={({ isActive }) =>
+                `relative px-3 lg:px-4 py-4 text-[13px] font-semibold transition ${
+                  isActive ? 'text-primary' : 'text-gray-500 hover:text-gray-800 dark:hover:text-gray-200'
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  소개
+                  {isActive && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-[2px] bg-primary rounded-full" />}
+                </>
+              )}
+            </NavLink>
+
             {/* AI 기능 Dropdown */}
             <div className="relative" ref={aiDropdownRef}>
               <button
@@ -133,23 +151,6 @@ export default function Layout({ children }) {
               {({ isActive }) => (
                 <>
                   요금제
-                  {isActive && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-[2px] bg-primary rounded-full" />}
-                </>
-              )}
-            </NavLink>
-
-            {/* 소개 */}
-            <NavLink
-              to="/about"
-              className={({ isActive }) =>
-                `relative px-3 lg:px-4 py-4 text-[13px] font-semibold transition ${
-                  isActive ? 'text-primary' : 'text-gray-500 hover:text-gray-800 dark:hover:text-gray-200'
-                }`
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  소개
                   {isActive && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-[2px] bg-primary rounded-full" />}
                 </>
               )}
@@ -239,13 +240,26 @@ export default function Layout({ children }) {
       {mobileNavOpen && (
         <div className="md:hidden fixed top-14 left-0 right-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-lg z-40 animate-fade-in">
           <nav className="flex flex-col py-2">
+            {/* 소개 */}
+            <NavLink
+              to="/"
+              end
+              onClick={() => setMobileNavOpen(false)}
+              className={({ isActive }) =>
+                `px-5 py-3 text-sm font-semibold transition ${
+                  isActive ? 'text-primary bg-primary-light/50 dark:bg-primary/10' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
+                }`
+              }
+            >
+              소개
+            </NavLink>
+            <div className="border-t border-gray-100 dark:border-gray-700 my-1" />
             {/* AI 기능 섹션 */}
             <div className="px-5 py-2 text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">AI 기능</div>
             {aiFeatures.map((item) => (
               <NavLink
                 key={item.path}
                 to={item.path}
-                end={item.end}
                 onClick={() => setMobileNavOpen(false)}
                 className={({ isActive }) =>
                   `px-5 py-3 text-sm font-semibold transition flex items-center gap-3 ${
@@ -270,17 +284,6 @@ export default function Layout({ children }) {
               }
             >
               요금제
-            </NavLink>
-            <NavLink
-              to="/about"
-              onClick={() => setMobileNavOpen(false)}
-              className={({ isActive }) =>
-                `px-5 py-3 text-sm font-semibold transition ${
-                  isActive ? 'text-primary bg-primary-light/50 dark:bg-primary/10' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
-                }`
-              }
-            >
-              소개
             </NavLink>
             <div className="border-t border-gray-100 dark:border-gray-700 mt-1 pt-1">
               <button onClick={() => { setMobileNavOpen(false); navigate('/mypage'); }}
@@ -308,7 +311,7 @@ export default function Layout({ children }) {
           <span>&copy; 2025 RecruitAI</span>
           <div className="flex gap-4">
             <a href="/pricing" className="hover:text-gray-600 dark:hover:text-gray-300 transition-colors">요금제</a>
-            <a href="/about" className="hover:text-gray-600 dark:hover:text-gray-300 transition-colors">소개</a>
+            <a href="/" className="hover:text-gray-600 dark:hover:text-gray-300 transition-colors">소개</a>
             <a href="/privacy" className="hover:text-gray-600 dark:hover:text-gray-300 transition-colors">개인정보처리방침</a>
           </div>
         </div>

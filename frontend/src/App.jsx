@@ -25,18 +25,18 @@ function ProtectedRoute() {
 const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
   { path: '/privacy', element: <PrivacyPolicyPage /> },
-  { path: '/pricing', element: <PricingPage /> },
-  { path: '/about', element: <AboutPage /> },
   { path: '/oauth/callback/:provider', element: <OAuthCallbackPage /> },
   {
     element: <ProtectedRoute />,
     children: [
-      { path: '/', element: <HomePage /> },
+      { path: '/', element: <AboutPage /> },
+      { path: '/portfolio', element: <HomePage /> },
       { path: '/mypage', element: <MyPage /> },
       { path: '/resume', element: <ResumePage /> },
       { path: '/cover-letter', element: <CoverLetterPage /> },
       { path: '/interview', element: <InterviewPage /> },
       { path: '/career-description', element: <CareerDescPage /> },
+      { path: '/pricing', element: <PricingPage /> },
       { path: '/admin', element: <AdminPage /> },
     ],
   },

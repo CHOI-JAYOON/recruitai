@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const plans = [
@@ -66,21 +65,9 @@ export default function PricingPage() {
   const currentPlan = user?.plan || 'free';
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-          <Link to="/" className="text-lg font-bold">
-            Recruit<span className="text-primary">AI</span>
-          </Link>
-          <Link to="/login" className="text-sm text-primary hover:underline">
-            로그인
-          </Link>
-        </div>
-      </header>
-
+    <div className="animate-fade-in">
       {/* Hero */}
-      <section className="pt-16 pb-10 text-center px-6">
+      <section className="pt-8 pb-10 text-center px-4">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-3">
           나에게 맞는 플랜을 선택하세요
         </h1>
@@ -144,12 +131,12 @@ export default function PricingPage() {
                       현재 플랜
                     </button>
                   ) : (
-                    <Link
-                      to="/login"
-                      className="w-full py-3 rounded-xl text-sm font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition text-center block"
+                    <button
+                      disabled
+                      className="w-full py-3 rounded-xl text-sm font-semibold bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-default"
                     >
-                      시작하기
-                    </Link>
+                      무료 플랜
+                    </button>
                   )
                 ) : isCurrent ? (
                   <button
@@ -264,12 +251,6 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-gray-200 dark:border-gray-700 py-8">
-        <div className="max-w-4xl mx-auto px-6 text-center text-sm text-gray-400">
-          <p>&copy; 2025 RecruitAI. All rights reserved.</p>
-        </div>
-      </footer>
     </div>
   );
 }
