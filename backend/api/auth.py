@@ -34,6 +34,9 @@ def login(request: Request, req: LoginRequest):
     user = auth_service.login(req.username, req.password)
     if not user:
         raise HTTPException(status_code=401, detail="아이디 또는 비밀번호가 올바르지 않습니다.")
+    # Add has_api_key info
+    user_info = auth_service.get_user_info(req.username)
+    user["has_api_key"] = user_info.get("has_api_key", False) if user_info else False
     token = create_token(user["username"], user["display_name"], user.get("email", ""), user.get("provider", "local"), user.get("role", "user"), user.get("plan", "free"))
     return {**user, "token": token}
 

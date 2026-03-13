@@ -29,6 +29,12 @@ def list_portfolios(current_user: dict = Depends(get_current_user)):
 
 @router.patch("/reorder")
 def reorder_portfolios(req: ReorderRequest, current_user: dict = Depends(get_current_user)):
+    # Verify all portfolio IDs belong to the current user
+    user_portfolios = storage.load_all(username=current_user["username"])
+    user_ids = {p.id if hasattr(p, 'id') else p.get('id') for p in user_portfolios}
+    for pid in req.ordered_ids:
+        if pid not in user_ids:
+            raise HTTPException(status_code=403, detail="접근 권한이 없습니다.")
     storage.reorder(req.ordered_ids)
     return {"message": "순서 변경 완료"}
 
@@ -87,6 +93,12 @@ def update_portfolio(portfolio_id: str, portfolio: Portfolio, current_user: dict
 
 @router.delete("/{portfolio_id}")
 def delete_portfolio(portfolio_id: str, current_user: dict = Depends(get_current_user)):
+    # Ownership check before delete
+    p = storage.get_by_id(portfolio_id)
+    if p:
+        p_data = p if isinstance(p, dict) else p.model_dump() if hasattr(p, 'model_dump') else p.__dict__
+        if p_data.get("username") and p_data["username"] != current_user["username"]:
+            raise HTTPException(status_code=403, detail="접근 권한이 없습니다.")
     storage.delete(portfolio_id)
     try:
         vs = VectorStoreService()

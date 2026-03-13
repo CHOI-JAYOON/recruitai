@@ -47,6 +47,13 @@ async def upload_photo(username: str, file: UploadFile = File(...), current_user
     # File size validation
     if len(contents) > MAX_PHOTO_SIZE:
         raise HTTPException(status_code=413, detail="이미지 파일은 5MB 이하여야 합니다.")
+    # Magic bytes validation
+    MAGIC_BYTES = {
+        "jpg": [b'\xff\xd8\xff'], "jpeg": [b'\xff\xd8\xff'],
+        "png": [b'\x89PNG'], "webp": [b'RIFF'],
+    }
+    if ext in MAGIC_BYTES and not any(contents.startswith(m) for m in MAGIC_BYTES[ext]):
+        raise HTTPException(status_code=400, detail="파일 내용이 확장자와 일치하지 않습니다.")
     mime = {"jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png", "webp": "image/webp"}.get(ext, "image/jpeg")
     b64 = base64.b64encode(contents).decode()
     data_url = f"data:{mime};base64,{b64}"

@@ -1,10 +1,13 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel
 from services.auth import AuthService
 from services.jwt_service import get_current_user
 from services.subscription import usage_tracker
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 router = APIRouter()
+limiter = Limiter(key_func=get_remote_address)
 auth_service = AuthService()
 
 
@@ -29,7 +32,8 @@ class UpdateRoleRequest(BaseModel):
 
 
 @router.get("/users")
-def list_users(admin: dict = Depends(require_admin)):
+@limiter.limit("30/minute")
+def list_users(request: Request, admin: dict = Depends(require_admin)):
     """전체 유저 목록 + 사용량"""
     users = auth_service.list_all_users()
     for user in users:
@@ -38,7 +42,8 @@ def list_users(admin: dict = Depends(require_admin)):
 
 
 @router.put("/users/{username}/plan")
-def update_user_plan(username: str, req: UpdatePlanRequest, admin: dict = Depends(require_admin)):
+@limiter.limit("10/minute")
+def update_user_plan(request: Request, username: str, req: UpdatePlanRequest, admin: dict = Depends(require_admin)):
     """유저 플랜 변경"""
     if req.plan not in ("free", "pro", "max"):
         raise HTTPException(status_code=400, detail="유효하지 않은 플랜입니다. (free, pro, max)")
@@ -49,7 +54,8 @@ def update_user_plan(username: str, req: UpdatePlanRequest, admin: dict = Depend
 
 
 @router.put("/users/{username}/role")
-def update_user_role(username: str, req: UpdateRoleRequest, admin: dict = Depends(require_admin)):
+@limiter.limit("10/minute")
+def update_user_role(request: Request, username: str, req: UpdateRoleRequest, admin: dict = Depends(require_admin)):
     """유저 역할 변경"""
     if req.role not in ("user", "admin"):
         raise HTTPException(status_code=400, detail="유효하지 않은 역할입니다. (user, admin)")

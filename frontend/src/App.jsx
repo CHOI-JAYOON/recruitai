@@ -22,6 +22,13 @@ function ProtectedRoute() {
   return <Layout><Outlet /></Layout>;
 }
 
+function AdminRoute() {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.role !== 'admin') return <Navigate to="/" replace />;
+  return <Layout><Outlet /></Layout>;
+}
+
 function PublicLayoutRoute() {
   return <Layout><Outlet /></Layout>;
 }
@@ -46,6 +53,11 @@ const router = createBrowserRouter([
       { path: '/cover-letter', element: <CoverLetterPage /> },
       { path: '/interview', element: <InterviewPage /> },
       { path: '/career-description', element: <CareerDescPage /> },
+    ],
+  },
+  {
+    element: <AdminRoute />,
+    children: [
       { path: '/admin', element: <AdminPage /> },
     ],
   },

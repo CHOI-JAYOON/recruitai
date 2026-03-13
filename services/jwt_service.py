@@ -4,9 +4,15 @@ import time
 from fastapi import Header, HTTPException, Depends
 
 
-JWT_SECRET = os.getenv("JWT_SECRET", "recruitai-secret-change-in-production-!@#$%")
+_default_secret = "recruitai-secret-change-in-production-!@#$%"
+JWT_SECRET = os.getenv("JWT_SECRET", _default_secret)
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION = 60 * 60 * 24 * 7  # 7 days
+
+# Warn if using default secret in production
+if JWT_SECRET == _default_secret and os.getenv("ENV", "").lower() == "production":
+    import warnings
+    warnings.warn("JWT_SECRET is using default value in production! Set JWT_SECRET environment variable.", stacklevel=2)
 
 
 def create_token(username: str, display_name: str = "", email: str = "", provider: str = "local", role: str = "user", plan: str = "free") -> str:

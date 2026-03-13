@@ -1,17 +1,35 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import api from '../api/client';
 
 export default function ApiKeyModal({ open, onClose, onSave }) {
   const [key, setKey] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { refreshUser } = useAuth();
 
   if (!open) return null;
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!key.trim()) return;
-    localStorage.setItem('apiKey', key.trim());
-    onSave?.(key.trim());
-    setKey('');
+    if (!key.trim().startsWith('sk-')) {
+      setError('sk-로 시작하는 올바른 키를 입력하세요.');
+      return;
+    }
+    setSaving(true);
+    setError('');
+    try {
+      await api.put('/auth/api-key', { api_key: key.trim() });
+      await refreshUser();
+      onSave?.(key.trim());
+      setKey('');
+    } catch (err) {
+      setError(err.response?.data?.detail || 'API Key 저장에 실패했습니다.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const goToMyPage = () => {
@@ -46,13 +64,14 @@ export default function ApiKeyModal({ open, onClose, onSave }) {
           <input
             type="password"
             value={key}
-            onChange={(e) => setKey(e.target.value)}
+            onChange={(e) => { setKey(e.target.value); setError(''); }}
             onKeyDown={(e) => e.key === 'Enter' && handleSave()}
             className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition"
             placeholder="sk-..."
           />
+          {error && <p className="text-xs text-red-500 mt-1.5">{error}</p>}
           <p className="text-xs text-gray-400 mt-1.5">
-            API Key는 브라우저에만 저장되며 서버로 전송 시 암호화됩니다.
+            API Key는 서버에 안전하게 저장됩니다.
           </p>
         </div>
 
@@ -81,10 +100,10 @@ export default function ApiKeyModal({ open, onClose, onSave }) {
           </button>
           <button
             onClick={handleSave}
-            disabled={!key.trim()}
+            disabled={!key.trim() || saving}
             className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-primary hover:bg-primary-dark rounded-xl transition disabled:opacity-50"
           >
-            등록하기
+            {saving ? '저장 중...' : '등록하기'}
           </button>
         </div>
       </div>
@@ -92,20 +111,20 @@ export default function ApiKeyModal({ open, onClose, onSave }) {
   );
 }
 
-// Hook: AI 기능 페이지에서 API Key 존재 여부 체크
+// Hook: AI 기능 페이지에서 API Key 존재 여부 체크 (서버 기반)
 export function useApiKeyCheck() {
   const [showModal, setShowModal] = useState(false);
+  const { user } = useAuth();
 
   const checkApiKey = () => {
-    const key = localStorage.getItem('apiKey');
-    if (!key) {
+    if (!user?.has_api_key) {
       setShowModal(true);
       return false;
     }
     return true;
   };
 
-  const hasApiKey = () => !!localStorage.getItem('apiKey');
+  const hasApiKey = () => !!user?.has_api_key;
 
   return { showModal, setShowModal, checkApiKey, hasApiKey };
 }
