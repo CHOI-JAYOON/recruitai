@@ -56,11 +56,13 @@ export default function LoginPage() {
   const checkUsername = async () => {
     if (!username.trim()) return;
     try {
-      const res = await api.post('/auth/check-username', { username });
+      const res = await api.post('/auth/check-username', { username: username.trim() });
       setUsernameChecked(true);
       setUsernameAvailable(!res.data.exists);
-    } catch {
+    } catch (err) {
+      console.error('Username check failed:', err);
       setUsernameChecked(false);
+      setError('아이디 중복확인에 실패했습니다. 다시 시도해주세요.');
     }
   };
 
