@@ -278,7 +278,7 @@ export default function AboutPage() {
             </Link>
             <div className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 text-sm font-bold rounded-2xl border border-green-200 dark:border-green-800">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-              모든 기능 무료
+              가입 즉시 무료 체험
             </div>
           </div>
         </div>
@@ -467,7 +467,7 @@ export default function AboutPage() {
               </Link>
               <div className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 text-white text-sm font-bold rounded-2xl border border-white/20 backdrop-blur-sm">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-                가입만 하면 무료
+                별도 결제 없이 시작
               </div>
             </div>
           </div>
