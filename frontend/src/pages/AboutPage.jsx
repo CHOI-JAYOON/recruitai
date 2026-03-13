@@ -276,12 +276,10 @@ export default function AboutPage() {
                 <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
               </svg>
             </Link>
-            <Link
-              to="/pricing"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-700 dark:text-gray-200 text-sm font-bold rounded-2xl border border-gray-200 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-800 transition-all hover:shadow-md"
-            >
-              요금제 보기
-            </Link>
+            <div className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 text-sm font-bold rounded-2xl border border-green-200 dark:border-green-800">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+              모든 기능 무료
+            </div>
           </div>
         </div>
       </section>
@@ -467,12 +465,10 @@ export default function AboutPage() {
                   <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
                 </svg>
               </Link>
-              <Link
-                to="/pricing"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 text-white text-sm font-bold rounded-2xl border border-white/20 hover:bg-white/20 transition-all backdrop-blur-sm"
-              >
-                요금제 보기
-              </Link>
+              <div className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 text-white text-sm font-bold rounded-2xl border border-white/20 backdrop-blur-sm">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                가입만 하면 무료
+              </div>
             </div>
           </div>
         </div>
