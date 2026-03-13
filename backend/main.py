@@ -36,6 +36,8 @@ init_db()
 allowed_origins = [
     "http://localhost:5173",
     "http://localhost:3000",
+    "https://recruitai.co.kr",
+    "https://www.recruitai.co.kr",
 ]
 # Add Vercel production domain from env
 vercel_url = os.getenv("FRONTEND_URL", "")

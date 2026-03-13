@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /login
+Disallow: /mypage
+Disallow: /admin
+
+Sitemap: https://www.recruitai.co.kr/sitemap.xml
