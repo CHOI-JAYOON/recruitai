@@ -440,6 +440,132 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* FAQ */}
+      <section className="max-w-4xl mx-auto px-4 py-20">
+        <div className="text-center mb-14">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-50 dark:bg-amber-900/20 rounded-full mb-4">
+            <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+            <span className="text-xs font-bold text-amber-600 dark:text-amber-400">FAQ</span>
+          </div>
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-3 tracking-tight">
+            자주 묻는 질문
+          </h2>
+          <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base">RecruitAI에 대해 궁금한 점을 확인하세요.</p>
+        </div>
+        <div className="space-y-4">
+          {[
+            {
+              q: 'RecruitAI는 어떤 서비스인가요?',
+              a: 'RecruitAI는 AI 기술을 활용한 취업 준비 플랫폼입니다. 포트폴리오 분석, 이력서 자동 생성, 자기소개서 작성, 경력기술서 생성, AI 면접 연습 등 취업 준비에 필요한 모든 과정을 AI가 도와드립니다. OpenAI의 GPT 모델을 기반으로 한국 취업 시장에 최적화된 결과물을 제공합니다.'
+            },
+            {
+              q: '정말 무료로 사용할 수 있나요?',
+              a: '네, 가입 즉시 무료 플랜이 적용되어 모든 AI 기능을 체험해볼 수 있습니다. 무료 플랜에서는 월별 사용량 제한이 있으며, 본인의 OpenAI API Key를 등록하면 사용량 제한 없이 모든 기능을 무제한으로 이용할 수 있습니다.'
+            },
+            {
+              q: 'AI가 생성한 이력서/자소서의 품질은 어떤가요?',
+              a: 'RecruitAI는 사용자의 실제 경험과 포트폴리오를 기반으로 이력서와 자소서를 생성합니다. 지원 직무에 맞는 키워드 최적화, STAR 기법 적용, 두괄식 구조 등 전문 컨설턴트의 작성 방법론을 AI에 적용하여 높은 품질의 결과물을 제공합니다. 생성 후 자유롭게 수정하고 보완할 수 있습니다.'
+            },
+            {
+              q: 'AI 면접 연습은 어떻게 진행되나요?',
+              a: 'AI 면접관이 지원 직무와 포트폴리오를 분석하여 실제 면접에서 나올 수 있는 기술 면접, 인성 면접, 상황 면접 질문을 생성합니다. 답변을 입력하면 구체성, 논리성, 직무 적합성 등을 기준으로 10점 만점 채점과 함께 상세한 피드백과 모범 답변을 제공합니다.'
+            },
+            {
+              q: 'OpenAI API Key는 어떻게 발급받나요?',
+              a: 'OpenAI 공식 사이트(platform.openai.com)에서 회원가입 후, 좌측 메뉴의 API Keys에서 새 키를 생성할 수 있습니다. 생성된 키를 RecruitAI 마이페이지 설정에서 등록하면 됩니다. API Key는 서버에 안전하게 암호화되어 저장됩니다.'
+            },
+            {
+              q: '내 개인정보는 안전한가요?',
+              a: 'RecruitAI는 사용자의 개인정보를 철저히 보호합니다. 입력하신 이력서, 포트폴리오, 자소서 등의 데이터는 오직 AI 기능 제공 목적으로만 사용되며, 제3자에게 공유되지 않습니다. 비밀번호는 bcrypt로 암호화되고, JWT 토큰 기반 인증을 사용합니다.'
+            },
+          ].map((item) => (
+            <details key={item.q} className="group bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
+              <summary className="flex items-center justify-between cursor-pointer p-5 sm:p-6 list-none">
+                <span className="text-sm sm:text-base font-bold text-gray-900 dark:text-white pr-4">{item.q}</span>
+                <svg className="w-5 h-5 text-gray-400 shrink-0 group-open:rotate-180 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </summary>
+              <div className="px-5 sm:px-6 pb-5 sm:pb-6 -mt-1">
+                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{item.a}</p>
+              </div>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      {/* Detailed Guide */}
+      <section className="relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 border-t border-gray-200/80 dark:border-gray-700 py-20 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-14">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 rounded-full mb-4">
+              <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+              <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">GUIDE</span>
+            </div>
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-3 tracking-tight">
+              AI 취업 준비 완벽 가이드
+            </h2>
+            <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base max-w-lg mx-auto">
+              RecruitAI를 효과적으로 활용하는 방법을 알아보세요.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {[
+              {
+                title: '포트폴리오를 먼저 정리하세요',
+                desc: '이력서, 자소서, 면접 질문 모두 포트폴리오 데이터를 기반으로 생성됩니다. 프로젝트별로 역할, 기술 스택, 성과를 상세히 입력할수록 AI가 더 구체적이고 설득력 있는 결과물을 만들어냅니다. PDF 업로드 시 AI가 자동으로 파싱해주니 기존 포트폴리오 파일이 있다면 활용해보세요.',
+                icon: '📋'
+              },
+              {
+                title: '지원 직무를 구체적으로 입력하세요',
+                desc: '"개발자"보다는 "프론트엔드 개발자", "백엔드 개발자", "데이터 엔지니어" 등 구체적인 직무명을 입력하면 해당 직무에서 요구하는 핵심 역량과 키워드가 자동으로 반영됩니다. 채용 공고의 직무 설명도 함께 입력하면 더욱 맞춤화된 결과를 받을 수 있습니다.',
+                icon: '🎯'
+              },
+              {
+                title: 'AI 결과물을 본인만의 스타일로 다듬으세요',
+                desc: 'AI가 생성한 이력서와 자소서는 시작점입니다. 본인의 경험을 가장 잘 아는 것은 본인이므로, AI 결과물을 검토하고 본인만의 언어와 에피소드로 보완하세요. 특히 자소서의 경우 "수정 요청" 기능으로 AI와 대화하며 점진적으로 완성도를 높일 수 있습니다.',
+                icon: '✨'
+              },
+              {
+                title: '면접 연습을 반복하세요',
+                desc: 'AI 면접관은 매번 다른 질문을 생성하므로 반복 연습이 가능합니다. 처음에는 쉬운 난이도부터 시작해 점차 어려운 질문에 도전하세요. AI 피드백에서 제시하는 모범 답변을 참고하되, 본인의 실제 경험으로 재구성하는 연습이 면접 합격의 핵심입니다.',
+                icon: '🔄'
+              },
+            ].map((item) => (
+              <article key={item.title} className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 hover:shadow-lg transition-shadow">
+                <div className="text-2xl mb-3">{item.icon}</div>
+                <h3 className="text-base font-bold text-gray-900 dark:text-white mb-3">{item.title}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{item.desc}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Tech stack / Trust */}
+      <section className="max-w-4xl mx-auto px-4 py-20">
+        <div className="text-center mb-10">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white mb-3 tracking-tight">
+            검증된 기술로 만들었습니다
+          </h2>
+          <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base max-w-lg mx-auto">
+            RecruitAI는 최신 AI 기술과 안정적인 인프라 위에 구축되었습니다.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { name: 'OpenAI GPT', desc: '최신 AI 언어 모델' },
+            { name: 'React', desc: '빠른 사용자 경험' },
+            { name: 'FastAPI', desc: '고성능 백엔드' },
+            { name: 'Vercel + Railway', desc: '안정적인 클라우드' },
+          ].map((tech) => (
+            <div key={tech.name} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 text-center">
+              <div className="text-sm font-bold text-gray-900 dark:text-white mb-1">{tech.name}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">{tech.desc}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="relative max-w-4xl mx-auto px-4 pb-20 text-center">
         <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-10 sm:p-14 relative overflow-hidden">
