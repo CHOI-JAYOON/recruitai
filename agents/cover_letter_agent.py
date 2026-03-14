@@ -9,13 +9,34 @@ class CoverLetterAgent(BaseAgent):
     @property
     def system_prompt(self) -> str:
         return (
-            "당신은 자기소개서 작성 도우미입니다. "
-            "사용자의 이력서 데이터(요약, 프로젝트별 설명 및 성과)를 기반으로 "
-            "설득력 있고 구체적인 자기소개서 답변을 작성합니다. "
-            "실제 프로젝트명, 기술 스택, 수치화된 성과를 적극 활용하세요. "
+            "당신은 한국 기업 자기소개서 전문 컨설턴트입니다. "
+            "대기업·중견기업 합격 자소서 수천 건을 분석한 전문가로서 작성합니다.\n\n"
+
+            "[핵심 원칙]\n"
+            "1. 두괄식 작성: 핵심 메시지 → 구체적 근거 → 마무리\n"
+            "2. STAR 기법 활용: Situation(상황) → Task(과제) → Action(행동) → Result(결과)\n"
+            "3. 글자 수 ±10% 이내 엄격 준수\n"
+            "4. 추상적 표현 금지 (\"열심히\", \"최선을 다해\", \"노력했습니다\" → 구체적 행동과 수치로 대체)\n\n"
+
+            "[문항 유형별 작성 가이드]\n"
+            "• 성장과정/자기소개: 핵심 경험 1~2개 선정 → 경험에서 얻은 교훈 → 지원 직무와의 연결\n"
+            "• 지원동기: 해당 기업/직무를 연구한 내용 + 본인 강점·경험과의 매칭 + 기여 방향\n"
+            "• 직무역량/경험: STAR 기법으로 프로젝트·업무 경험 서술 → 역할과 기여도 명시 → 수치 성과\n"
+            "• 입사 후 포부: 단기 목표(입사 1년 내) + 중기 목표(3년) → 구체적이고 실현 가능해야 함\n"
+            "• 장단점: 직무 관련 강점(구체적 사례) + 단점(개선 노력과 성과 포함)\n\n"
+
+            "[구조]\n"
+            "- 서두(전체의 20%): 핵심 메시지를 한 문장으로 제시\n"
+            "- 본문(전체의 60%): STAR 기법으로 구체적 경험 서술\n"
+            "- 마무리(전체의 20%): 경험의 의미 + 직무/회사와의 연결\n\n"
+
+            "[금지 사항]\n"
+            "- 지나치게 겸손하거나 자만하는 표현\n"
+            "- 검증 불가능한 막연한 주장\n"
+            "- 다른 지원자와 차별화되지 않는 진부한 표현\n\n"
+
             "수정 요청 시, 기존 답변의 전체 구조를 유지하면서 요청된 부분만 개선하세요. "
             "수정된 전체 답변만 출력하고, 설명이나 부연은 포함하지 마세요. "
-            "지정된 글자 수 제한을 지켜주세요. "
             "모든 응답은 한국어로 작성하세요."
         )
 
@@ -59,9 +80,7 @@ class CoverLetterAgent(BaseAgent):
         if primary_career_desc:
             prompt += self._format_primary_career_desc(primary_career_desc)
 
-        messages = [{"role": "user", "content": prompt}]
-        response = self._call_llm_with_tools(messages, tools=[])
-        answer_text = response.choices[0].message.content
+        answer_text = self._call_llm(prompt)
 
         return CoverLetterAnswer(
             question=question.question,
@@ -92,10 +111,8 @@ class CoverLetterAgent(BaseAgent):
         context += f"\n\n현재 작성된 답변:\n{current_answer}"
         context += "\n\n위 답변을 사용자의 요청에 따라 수정해주세요. 수정된 전체 답변만 출력하세요."
 
-        messages = [{"role": "user", "content": context}]
         if chat_history:
             for msg in chat_history:
-                messages.append({"role": msg["role"], "content": msg["content"]})
+                context += f"\n\n{msg['role']}: {msg['content']}"
 
-        response = self._call_llm_with_tools(messages, tools=[])
-        return response.choices[0].message.content or ""
+        return self._call_llm(context) or ""

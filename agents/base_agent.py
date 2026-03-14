@@ -27,6 +27,7 @@ class BaseAgent(ABC):
     def _call_llm_structured(
         self, user_message: str, response_model: Type[BaseModel], **kwargs
     ) -> BaseModel:
+        kwargs.setdefault("temperature", 0.7)
         response = self.client.beta.chat.completions.parse(
             model=self.model,
             messages=[
