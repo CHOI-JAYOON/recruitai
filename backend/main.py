@@ -3,6 +3,8 @@ import sys
 from pathlib import Path
 
 # Add project root to path so we can import agents, models, services, config
+# In Railway (root=backend/), parent.parent is /. We need parent (=/app) on path.
+sys.path.insert(0, str(Path(__file__).parent))
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from fastapi import FastAPI, Request
@@ -12,7 +14,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
-from backend.api import auth, portfolios, profile, resume, cover_letter, interview, applications, career_description, admin
+from api import auth, portfolios, profile, resume, cover_letter, interview, applications, career_description, admin
 from services.json_db import init_db
 
 is_production = os.getenv("ENV", "").lower() == "production" or os.getenv("RENDER", "")
